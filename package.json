@@ -1,0 +1,33 @@
+{
+  "name": "serenity",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "midtrans-client": "^1.4.2",
+    "mysql2": "^3.14.1",
+    "next": "15.3.2",
+    "next-auth": "^4.24.11",
+    "nodemailer": "^6.10.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.2",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17"
+  }
+}
