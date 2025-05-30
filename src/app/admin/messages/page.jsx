@@ -1,10 +1,11 @@
-// app/admin/messages/page.jsx
+"use client";
+
 import AdminSidebar from "@/app/components/AdminSidebar";
 import ChatBox from "@/app/components/ChatBox";
 import { useEffect, useState } from "react";
 
 export default function AdminMessagesPage() {
-  const adminUser = { id: 1, role: "admin" }; // asumsi id admin 1
+  const adminUser = { id: 1, role: "admin" }; 
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 

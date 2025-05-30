@@ -12,7 +12,6 @@ export async function POST(req) {
   const hashed = await bcrypt.hash(password, 10);
   await pool.query("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", [name, email, hashed]);
 
-  // Email notification (optional: using Mailtrap / SMTP)
   const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
     port: 2525,

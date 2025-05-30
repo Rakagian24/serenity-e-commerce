@@ -15,7 +15,6 @@ export async function GET(req, { params }) {
 
   if (!order) return new Response("Not Found", { status: 404 });
 
-  // Customer hanya boleh lihat pesanan sendiri
   if (session.user.role !== "admin" && order.user_id !== session.user.id) {
     return new Response("Forbidden", { status: 403 });
   }

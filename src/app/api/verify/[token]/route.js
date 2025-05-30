@@ -7,7 +7,6 @@ export async function GET(req, { params }) {
 
   if (!record) return new Response("Token tidak valid", { status: 400 });
 
-  // Tandai sebagai terverifikasi
   await pool.query("UPDATE users SET email_verified = 1 WHERE email = ?", [record.identifier]);
   await pool.query("DELETE FROM verification_tokens WHERE token = ?", [token]);
 

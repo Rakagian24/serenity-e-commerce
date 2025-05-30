@@ -5,14 +5,11 @@ export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const url = req.nextUrl;
 
-  // 🧾 Hanya Admin boleh akses /admin
   if (url.pathname.startsWith("/admin")) {
     if (!token || token.role !== "admin") {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
-
-  // 🔐 Proteksi umum: fitur yang butuh login
   const protectedRoutes = ["/cart", "/checkout", "/orders", "/profile"];
   if (protectedRoutes.some((path) => url.pathname.startsWith(path))) {
     if (!token) {

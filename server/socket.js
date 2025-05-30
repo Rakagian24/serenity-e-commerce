@@ -7,7 +7,7 @@ export default function initSocket(server) {
     io = new Server(server, {
       path: "/api/socket",
       cors: {
-        origin: "*", // sebaiknya ubah ke origin app kamu
+        origin: "*", 
       },
     });
 
@@ -15,7 +15,7 @@ export default function initSocket(server) {
       console.log("Client connected");
 
       socket.on("join", (userId) => {
-        socket.join(userId); // setiap user bergabung ke room unik-nya
+        socket.join(userId); 
       });
 
       socket.on("chat-message", ({ senderId, receiverId, message }) => {
