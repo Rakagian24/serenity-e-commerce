@@ -20,9 +20,7 @@ export async function GET() {
       'Baju': '#10b981',
       'Celana': '#14b8a6', 
       'Jaket': '#06b6d4',
-      'Aksesoris': '#8b5cf6',
-      'Pria': '#f59e0b',
-      'Wanita': '#ec4899'
+      'Aksesoris': '#8b5cf6'
     };
 
     const categoryData = categoryResult.map(row => ({

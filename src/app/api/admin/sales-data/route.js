@@ -6,13 +6,13 @@ export async function GET() {
     // Get monthly sales data for the last 6 months
     const [salesResult] = await pool.execute(`
       SELECT 
-        DATE_FORMAT(created_at, '%b') as month,
+        DATE_FORMAT(created_at, '%Y-%m') as month,
         COALESCE(SUM(total_price), 0) as total_sales
       FROM orders 
       WHERE status IN ('paid', 'shipped', 'delivered')
         AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-      GROUP BY YEAR(created_at), MONTH(created_at)
-      ORDER BY created_at ASC
+      GROUP BY month
+      ORDER BY month
     `);
 
     const salesData = salesResult.map(row => ({

@@ -1,5 +1,4 @@
 "use client";
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import CustomerLiveChat from "./CustomerLiveChat";
@@ -20,17 +19,22 @@ export default function LiveChatProvider({ children, user }) {
       const socketInstance = io(undefined, { path: "/api/socket" });
       setSocket(socketInstance);
 
-      socketInstance.emit("join", user.id);
+      // Tambahkan validasi di sini
+      if (user.id) {
+        socketInstance.emit("join", user.id);
+      } else {
+        console.warn("❗️User ID not found on socket init", user);
+      }
 
       socketInstance.on("receive-message", (data) => {
         setMessages(prev => [...prev, data]);
         setUnreadCount(prev => prev + 1);
-        
-        // Show notification
+
         if (Notification.permission === "granted") {
-          new Notification("Pesan Baru", {
+          new Notification("Pesan Baru dari Serenity", {
             body: data.message,
-            icon: "/icon-192x192.png"
+            icon: "/icon-192x192.png",
+            badge: "/icon-192x192.png"
           });
         }
       });
@@ -40,6 +44,7 @@ export default function LiveChatProvider({ children, user }) {
       };
     }
   }, [user]);
+
 
   // Request notification permission
   useEffect(() => {

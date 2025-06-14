@@ -13,6 +13,7 @@ export default function CartPage() {
     const res = await fetch("/api/cart");
     const data = await res.json();
     setCart(data);
+    console.log("Cart data:", data);
     setLoading(false);
   };
 

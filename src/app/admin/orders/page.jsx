@@ -24,7 +24,7 @@ export default function OrdersPage() {
   const acceptOrder = async (id) => {
     setProcessingOrders(prev => new Set([...prev, id]));
     try {
-      await fetch(`/api/admin/orders/${id}/accept`, { method: "POST" });
+      await fetch(`/api/admin/orders/${id}/confirm`, { method: "POST" });
       fetchOrders();
     } catch (error) {
       console.error("Error accepting order:", error);
@@ -75,6 +75,7 @@ export default function OrdersPage() {
       case 'shipped': return '🚚';
       case 'delivered': return '📦';
       case 'cancelled': return '❌';
+      case 'pending': return '⌛';
       default: return '📋';
     }
   };
@@ -86,6 +87,7 @@ export default function OrdersPage() {
       case 'shipped': return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'delivered': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
+      case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
@@ -122,12 +124,14 @@ export default function OrdersPage() {
   };
 
   const filteredOrders = orders.filter(order => {
-    if (filter === 'all') return order.status === "paid";
+    if (filter === 'all') return true; // tampilkan semua
+    if (filter === 'unpaid') return order.status === "pending";
     if (filter === 'new') return order.status === "paid" && order.delivery_status === "pending";
     if (filter === 'accepted') return order.status === "paid" && order.delivery_status === "processing";
     if (filter === 'shipped') return order.status === "paid" && order.delivery_status === "shipped";
-    return order.status === "paid";
+    return true;
   });
+
 
   return (
     <div className="flex">
@@ -209,6 +213,7 @@ export default function OrdersPage() {
               {[
                 { key: 'all', label: 'Semua Pesanan', icon: '📋' },
                 { key: 'new', label: 'Pesanan Baru', icon: '💳' },
+                { key: 'unpaid', label: 'Belum Dibayar', icon: '⌛' },
                 { key: 'accepted', label: 'Diterima', icon: '✅' },
                 { key: 'shipped', label: 'Dikirim', icon: '🚚' }
               ].map((filterOption) => (
@@ -328,7 +333,7 @@ export default function OrdersPage() {
                           </button>
                         )}
 
-                        {order.delivery_status === 'processing' && (
+                        {order.delivery_status === 'pending' && (
                           <form onSubmit={(e) => handleSubmit(e, order.id)} className="bg-white rounded-lg p-4 border border-emerald-200">
                             <h4 className="font-medium text-gray-800 mb-3 flex items-center space-x-2">
                               <span>🚚</span>

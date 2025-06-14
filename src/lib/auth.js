@@ -1,23 +1,15 @@
 import GoogleProvider from "next-auth/providers/google";
-import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import { prisma } from "./primsa";
 import { pool } from "./db";
 
-
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    EmailProvider({
-      server: process.env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM,
-    }),
+
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -41,21 +33,43 @@ export const authOptions = {
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
+
+  session: { strategy: "jwt" },
+
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) token.role = user.role;
+    async jwt({ token, user, account, profile }) {
+      if (account?.provider === "google" && profile?.email) {
+        const [existing] = await pool.query("SELECT * FROM users WHERE email = ?", [profile.email]);
+        if (existing.length === 0) {
+          const [result] = await pool.query(
+            "INSERT INTO users (name, email, image, role) VALUES (?, ?, ?, ?)",
+            [profile.name, profile.email, profile.picture, "customer"]
+          );
+          token.id = result.insertId;
+        } else {
+          token.id = existing[0].id;
+        }
+        token.role = "customer";
+      }
+
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+
       return token;
     },
+
     async session({ session, token }) {
+      session.user.id = token.id;
       session.user.role = token.role;
       return session;
     },
   },
+
   pages: {
     signIn: "/login",
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 };

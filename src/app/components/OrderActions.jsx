@@ -9,7 +9,7 @@ export default function OrderActions({ orderId }) {
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      await fetch(`/api/orders/${orderId}/confirm`, { method: "POST" });
+      await fetch(`/api/admin/orders/${orderId}/confirm`, { method: "POST" });
       alert("Pesanan dikonfirmasi telah diterima!");
       window.location.reload();
     } catch (error) {
@@ -27,7 +27,7 @@ export default function OrderActions({ orderId }) {
     
     setComplaintLoading(true);
     try {
-      await fetch(`/api/orders/${orderId}/complain`, {
+      await fetch(`/api/admin/orders/${orderId}/complain`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

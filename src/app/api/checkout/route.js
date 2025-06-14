@@ -7,7 +7,7 @@ export async function POST() {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-    const [cartItems] = await pool.query(`
+  const [cartItems] = await pool.query(`
     SELECT c.product_id, c.quantity, p.price, p.description
     FROM carts c
     JOIN products p ON p.id = c.product_id
@@ -18,13 +18,14 @@ export async function POST() {
     return Response.json({ error: "Keranjang kosong" }, { status: 400 });
   }
 
-  // Hitung total
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Ambil data pengiriman user
   const [userRows] = await pool.query(`
-    SELECT shipping_name, shipping_phone, shipping_address FROM users WHERE id = ?
+    SELECT shipping_name, shipping_phone, shipping_address 
+    FROM users 
+    WHERE id = ?
   `, [session.user.id]);
+
   const shipping = userRows[0];
 
   if (!shipping.shipping_name || !shipping.shipping_phone || !shipping.shipping_address) {
@@ -34,38 +35,40 @@ export async function POST() {
   // Simpan pesanan
   const [orderResult] = await pool.query(`
     INSERT INTO orders (user_id, total_price, shipping_name, shipping_phone, shipping_address)
-    VALUES (?, ?, ?, ?, ?)`,
-    [
-      session.user.id,
-      total,
-      shipping.shipping_name,
-      shipping.shipping_phone,
-      shipping.shipping_address
-    ]
-  );
-  const orderId = orderResult.insertId;
+    VALUES (?, ?, ?, ?, ?)
+  `, [
+    session.user.id,
+    total,
+    shipping.shipping_name,
+    shipping.shipping_phone,
+    shipping.shipping_address
+  ]);
 
-  // Simpan detail item
+  const orderId = orderResult.insertId;
+  console.log("📝 Order berhasil disimpan dengan ID:", orderId);
+
+  // Simpan item
   for (const item of cartItems) {
     await pool.query(`
       INSERT INTO order_items (order_id, product_id, quantity, price)
-      VALUES (?, ?, ?, ?)`,
-      [orderId, item.product_id, item.quantity, item.price]
-    );
+      VALUES (?, ?, ?, ?)
+    `, [orderId, item.product_id, item.quantity, item.price]);
   }
 
   // Kosongkan keranjang
   await pool.query(`DELETE FROM carts WHERE user_id = ?`, [session.user.id]);
 
-  // Midtrans setup
-  let snap = new midtransClient.Snap({
+  // Setup Midtrans
+  const snap = new midtransClient.Snap({
     isProduction: false,
     serverKey: process.env.MIDTRANS_SERVER_KEY,
   });
 
-  let transaction = await snap.createTransaction({
+  const customOrderId = `ORDER-${orderId}-${Date.now()}`;
+
+  const transaction = await snap.createTransaction({
     transaction_details: {
-      order_id: `ORDER-${orderId}-${Date.now()}`,
+      order_id: customOrderId,
       gross_amount: total,
     },
     customer_details: {
@@ -78,10 +81,29 @@ export async function POST() {
     },
   });
 
-  await pool.query(`UPDATE orders SET midtrans_order_id = ? WHERE id = ?`, [transaction.order_id, orderId]);
+  console.log("🧾 Transaksi Midtrans berhasil dibuat:", transaction);
+
+  const [updateResult] = await pool.query(
+    `UPDATE orders SET midtrans_order_id = ? WHERE id = ?`,
+    [customOrderId, orderId]
+  );
+  console.log("📦 midtrans_order_id berhasil disimpan ke orders:", updateResult);
 
   return Response.json({
     token: transaction.token,
     redirect_url: transaction.redirect_url,
   });
+}
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const [userRows] = await pool.query(`
+    SELECT shipping_name, shipping_phone, shipping_address 
+    FROM users 
+    WHERE id = ?
+  `, [session.user.id]);
+
+  return Response.json(userRows[0] || {});
 }

@@ -8,6 +8,7 @@ export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [bestseller, setBestseller] = useState([]);
   const [byCategory, setByCategory] = useState({});
+  const [byGender, setByGender] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +20,8 @@ export default function Home() {
     await Promise.all([
       fetchFeatured(),
       fetchBestseller(),
-      fetchByCategory()
+      fetchByCategory(),
+      fetchByGender()
     ]);
     setLoading(false);
   };
@@ -37,13 +39,23 @@ export default function Home() {
   };
 
   const fetchByCategory = async () => {
-    const categories = ["Pria", "Wanita", "Baju", "Jaket", "Celana", "Aksesoris"];
+    const categories = ["Baju", "Jaket", "Celana", "Aksesoris"];
     const result = {};
     for (const cat of categories) {
       const res = await fetch(`/api/products?category=${cat}`);
       result[cat] = await res.json();
     }
     setByCategory(result);
+  };
+
+  const fetchByGender = async () => {
+    const genders = ["Pria", "Wanita"];
+    const result = {};
+    for (const gender of genders) {
+      const res = await fetch(`/api/products?gender=${gender}`);
+      result[gender] = await res.json();
+    }
+    setByGender(result);
   };
 
   const ProductCard = ({ product, index }) => (
@@ -62,6 +74,11 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
               </svg>
             </div>
+          </div>
+          <div className="absolute top-3 left-3">
+            <span className="text-xs font-medium text-white bg-emerald-600/80 backdrop-blur-sm px-2 py-1 rounded-full">
+              {product.gender}
+            </span>
           </div>
         </div>
         <div className="p-4">
@@ -199,6 +216,14 @@ export default function Home() {
           icon="🔥"
           subtitle="Produk favorit yang paling banyak diminati"
         />
+
+        {Object.keys(byGender).map(gender => (
+          <CategorySection 
+            key={gender} 
+            category={`Koleksi ${gender}`} 
+            products={byGender[gender]} 
+          />
+        ))}
 
         {Object.keys(byCategory).map(category => (
           <CategorySection 

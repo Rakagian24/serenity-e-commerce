@@ -1,7 +1,7 @@
 import { pool } from "@/lib/db";
 
 export async function POST(req, { params }) {
-  const orderId = params.orderId;
+  const { orderId } = await params;
 
   await pool.query(
     `UPDATE orders SET delivery_status = 'received' WHERE id = ?`,

@@ -18,30 +18,32 @@ export default function initSocket(server) {
 
     // Handle user joining
     socket.on("join", (userId) => {
+      if (!userId || typeof userId !== "string" && typeof userId !== "number") {
+        console.warn("❌ Invalid userId on join:", userId);
+        socket.emit("error", { message: "Invalid userId on join." });
+        return;
+      }
+
       console.log(`User ${userId} joined`);
       
-      // Store user info
       activeUsers.set(socket.id, {
         userId: userId,
         socketId: socket.id,
         joinedAt: new Date()
       });
 
-      // Join user to their own room
       socket.join(userId.toString());
 
-      // Broadcast user online status
       socket.broadcast.emit("user-status", {
-        userId: userId,
+        userId,
         status: "online"
       });
 
-      // Send current online users to the newly connected user
       const onlineUsers = Array.from(activeUsers.values()).map(user => ({
         userId: user.userId,
         status: "online"
       }));
-      
+
       socket.emit("online-users", onlineUsers);
     });
 

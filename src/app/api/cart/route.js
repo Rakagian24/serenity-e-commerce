@@ -5,7 +5,7 @@ import { pool } from "@/lib/db";
 export async function GET() {
   const session = await getServerSession(authOptions);
   const [rows] = await pool.query(`
-    SELECT carts.id, carts.quantity, products.description, products.price
+    SELECT carts.id, carts.quantity, products.description, products.price, products.image_url, products.category
     FROM carts
     JOIN products ON products.id = carts.product_id
     WHERE carts.user_id = ?
@@ -29,3 +29,22 @@ export async function DELETE(req) {
   await pool.query(`DELETE FROM carts WHERE id = ? AND user_id = ?`, [id, session.user.id]);
   return Response.json({ success: true });
 }
+
+export async function PUT(req) {
+  const session = await getServerSession(authOptions);
+  const { id, quantity } = await req.json();
+
+  // Validasi quantity
+  if (!id || !quantity || quantity < 1) {
+    return new Response(JSON.stringify({ error: "Invalid input" }), {
+      status: 400,
+    });
+  }
+
+  await pool.query(`
+    UPDATE carts SET quantity = ? WHERE id = ? AND user_id = ?
+  `, [quantity, id, session.user.id]);
+
+  return Response.json({ success: true });
+}
+

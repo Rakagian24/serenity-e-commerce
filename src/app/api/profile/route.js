@@ -13,7 +13,12 @@ export async function GET(req) {
     [session.user.id]
   );
 
-  return Response.json(rows[0]);
+  const user = rows[0];
+  if (!user) {
+    return new Response("User not found", { status: 404 });
+  }
+
+  return Response.json(user);
 }
 
 export async function POST(req) {

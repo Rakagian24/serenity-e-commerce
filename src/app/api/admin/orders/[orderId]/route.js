@@ -6,7 +6,7 @@ export async function GET(req, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const orderId = params.id;
+  const { orderId } = await params;
 
   const [[order]] = await pool.query(
     `SELECT * FROM orders WHERE id = ?`,

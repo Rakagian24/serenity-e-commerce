@@ -1,7 +1,7 @@
 import { pool } from "@/lib/db";
 
 export async function POST(req, { params }) {
-  const orderId = params.orderId;
+  const { orderId } = await params;
   const { complaint } = await req.json();
 
   await pool.query(

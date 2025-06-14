@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useRef } from "react";
 import { useLiveChat } from "./LiveChatProvider";
 
@@ -30,7 +29,6 @@ export default function ChatBox({ user, receiverId, onClose }) {
         setLoading(false);
       }
     };
-
     if (user.id && receiverId) {
       loadHistory();
     }
@@ -39,7 +37,6 @@ export default function ChatBox({ user, receiverId, onClose }) {
   // Handle incoming messages
   useEffect(() => {
     if (!socket) return;
-
     const handleReceive = (data) => {
       // Only add message if it's relevant to this conversation
       if ((data.senderId === receiverId && data.receiverId === user.id) ||
@@ -61,9 +58,7 @@ export default function ChatBox({ user, receiverId, onClose }) {
         });
       }
     };
-
     socket.on("receive-message", handleReceive);
-
     return () => {
       socket.off("receive-message", handleReceive);
     };
@@ -76,25 +71,20 @@ export default function ChatBox({ user, receiverId, onClose }) {
 
   const sendMessage = async () => {
     if (!text.trim() || !socket || sending) return;
-
     const messageText = text.trim();
     setText(""); // Clear input immediately for better UX
     setSending(true);
-
     const msgData = {
       senderId: user.id,
       receiverId,
       message: messageText,
       timestamp: new Date().toISOString()
     };
-
     try {
       // Add to local state optimistically
       setMessages((prev) => [...prev, msgData]);
-
       // Emit to socket
       socket.emit("chat-message", msgData);
-
       // Save to database
       const response = await fetch("/api/messages", {
         method: "POST",
@@ -107,11 +97,9 @@ export default function ChatBox({ user, receiverId, onClose }) {
           message: messageText
         }),
       });
-
       if (!response.ok) {
         throw new Error('Failed to save message');
       }
-
     } catch (error) {
       console.error("Error sending message:", error);
       
@@ -145,7 +133,6 @@ export default function ChatBox({ user, receiverId, onClose }) {
     const date = new Date(timestamp);
     const now = new Date();
     const diffInHours = (now - date) / (1000 * 60 * 60);
-
     if (diffInHours < 24) {
       // Today - show only time
       return date.toLocaleTimeString('id-ID', {
@@ -177,20 +164,20 @@ export default function ChatBox({ user, receiverId, onClose }) {
   };
 
   return (
-    <div className="w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+    <div className="w-80 bg-white rounded-2xl shadow-xl border border-emerald-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 bg-emerald-200 rounded-full animate-pulse"></div>
           <div>
             <div className="font-semibold">Chat dengan {getReceiverName()}</div>
-            <div className="text-xs text-blue-100">Online</div>
+            <div className="text-xs text-emerald-100">Online</div>
           </div>
         </div>
         {onClose && (
           <button 
             onClick={onClose} 
-            className="text-white hover:text-gray-200 text-xl w-6 h-6 flex items-center justify-center"
+            className="text-white hover:text-emerald-100 text-xl w-6 h-6 flex items-center justify-center transition-colors"
           >
             ×
           </button>
@@ -198,30 +185,33 @@ export default function ChatBox({ user, receiverId, onClose }) {
       </div>
 
       {/* Messages */}
-      <div className="h-80 overflow-y-auto p-4 bg-gray-50 space-y-3">
+      <div className="h-80 overflow-y-auto p-4 bg-gradient-to-br from-emerald-50 via-white to-teal-50 space-y-3">
         {loading ? (
           <div className="flex justify-center items-center h-full">
-            <div className="flex items-center gap-2 text-gray-500">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            <div className="flex items-center gap-2 text-emerald-600">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-emerald-600"></div>
               <span className="text-sm">Memuat pesan...</span>
             </div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex justify-center items-center h-full text-gray-500 text-sm">
-            Belum ada pesan. Mulai percakapan!
+          <div className="flex flex-col justify-center items-center h-full text-gray-500 text-sm">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+              <span className="text-2xl">💬</span>
+            </div>
+            <p>Belum ada pesan. Mulai percakapan!</p>
           </div>
         ) : (
           <>
             {messages.map((msg, i) => (
               <div key={`${msg.id || i}-${msg.timestamp}`} className={`flex ${msg.senderId === user.id ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-xs px-3 py-2 rounded-lg ${
+                <div className={`max-w-xs px-4 py-3 rounded-2xl shadow-sm ${
                   msg.senderId === user.id 
-                    ? "bg-blue-600 text-white rounded-br-none" 
-                    : "bg-white text-gray-800 border border-gray-200 rounded-bl-none shadow-sm"
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-md" 
+                    : "bg-white text-gray-800 border border-emerald-100 rounded-bl-md"
                 }`}>
                   <div className="text-sm leading-relaxed break-words">{msg.message}</div>
                   <div className={`text-xs mt-1 ${
-                    msg.senderId === user.id ? "text-blue-100" : "text-gray-500"
+                    msg.senderId === user.id ? "text-emerald-100" : "text-gray-500"
                   }`}>
                     {formatTime(msg.timestamp)}
                   </div>
@@ -234,10 +224,10 @@ export default function ChatBox({ user, receiverId, onClose }) {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t bg-white">
+      <div className="p-4 border-t border-emerald-100 bg-white">
         <div className="flex gap-2">
           <input
-            className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            className="flex-1 border border-emerald-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-all"
             placeholder="Ketik pesan..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -245,9 +235,9 @@ export default function ChatBox({ user, receiverId, onClose }) {
             disabled={sending}
           />
           <button 
-            className={`px-4 py-2 rounded-full text-white text-sm font-medium transition-all duration-200 ${
+            className={`px-4 py-2 rounded-full text-white text-sm font-medium transition-all duration-300 ${
               text.trim() && !sending
-                ? "bg-blue-600 hover:bg-blue-700 cursor-pointer" 
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 cursor-pointer shadow-md hover:shadow-lg" 
                 : "bg-gray-400 cursor-not-allowed"
             }`}
             onClick={sendMessage}
@@ -264,3 +254,4 @@ export default function ChatBox({ user, receiverId, onClose }) {
     </div>
   );
 }
+

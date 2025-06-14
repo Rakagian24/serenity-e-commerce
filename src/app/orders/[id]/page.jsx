@@ -111,6 +111,16 @@ export default function OrderDetailPage() {
     }
   };
 
+  const getDeliveryStatusIcon = (status) => {
+    switch(status) {
+      case 'pending': return '📋';
+      case 'shipped': return '🚚';
+      case 'received': return '✅';
+      case 'returned': return '↩️';
+      default: return '📦';
+    }
+  };
+
   const getDeliveryStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -256,7 +266,7 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Shipping Info */}
-            {order.resi && (
+            {order.resi ? (
               <div className="bg-white rounded-2xl shadow-md border border-emerald-100 overflow-hidden">
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100">
                   <h2 className="text-xl font-bold text-gray-800 flex items-center">
@@ -266,6 +276,7 @@ export default function OrderDetailPage() {
                     Informasi Pengiriman
                   </h2>
                 </div>
+
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
@@ -277,61 +288,35 @@ export default function OrderDetailPage() {
                       <p className="text-gray-800 font-medium">{order.resi}</p>
                     </div>
                   </div>
-                  
-                  {tracking?.result?.summary ? (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Status Terkini</label>
-                          <p className="text-blue-800 font-bold">{tracking.result.summary.status}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Kurir</label>
-                          <p className="text-gray-800 font-medium">{tracking.result.summary.courier_name}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">No. Resi</label>
-                          <p className="text-gray-800 font-medium">{tracking.result.summary.waybill_number}</p>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold text-gray-800 mb-4 flex items-center">
-                          <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          Riwayat Pengiriman
-                        </h3>
-                        <div className="space-y-3">
-                          {tracking.result.manifest.map((m, i) => (
-                            <div key={i} className="flex items-start space-x-3 bg-white rounded-lg p-3 shadow-sm">
-                              <div className="flex-shrink-0">
-                                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-800">{m.manifest_description}</p>
-                                <p className="text-xs text-gray-500">{m.manifest_date} • {m.manifest_time}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Status Pengiriman</label>
+                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getDeliveryStatusColor(order.delivery_status)}`}>
+                        {getDeliveryStatusIcon(order.delivery_status)} {order.delivery_status}
+                      </span>
                     </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                      </div>
-                      <p className="text-gray-500">Status pengiriman belum tersedia</p>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tracking</label>
+                      <a
+                        href={`https://cekresi.com/?noresi=${order.resi}`}
+                        target="_blank"
+                        className="text-emerald-600 font-medium hover:underline"
+                      >
+                        Lihat di CekResi.com
+                      </a>
                     </div>
-                  )}
+                  </div>
                 </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <p className="text-gray-500">Status pengiriman belum tersedia</p>
               </div>
             )}
           </div>

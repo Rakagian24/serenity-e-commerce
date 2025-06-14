@@ -53,10 +53,16 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-6">
             <Link 
+              href="/" 
+              className="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-emerald-50 transition-all duration-200 font-medium"
+            >
+              Beranda
+            </Link>
+            <Link 
               href="/product-list" 
               className="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-emerald-50 transition-all duration-200 font-medium"
             >
-              Produk
+              Katalog
             </Link>
 
             {session?.user && (
@@ -146,7 +152,7 @@ export default function Navbar() {
                   <span className="font-medium hidden sm:block">Profil</span>
                 </Link>
                 <button 
-                  onClick={() => signOut()} 
+                  onClick={() => signOut({ callbackUrl: "/" })}
                   className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                 >
                   Logout
@@ -154,7 +160,7 @@ export default function Navbar() {
               </div>
             ) : (
               <button 
-                onClick={() => signIn("google")} 
+                onClick={() => signIn("credentials", { callbackUrl: "/" })} 
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center space-x-2"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

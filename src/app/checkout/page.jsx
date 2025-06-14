@@ -24,7 +24,7 @@ export default function CheckoutPage() {
   };
 
   const fetchShippingInfo = async () => {
-    const res = await fetch("/api/checout");
+    const res = await fetch("/api/checkout");
     const data = await res.json();
     setShippingInfo({
       name: data.shipping_name,
@@ -33,31 +33,53 @@ export default function CheckoutPage() {
     });
   };
 
+  const loadMidtransScript = () => {
+  return new Promise((resolve, reject) => {
+      if (window.snap) return resolve(); // Sudah tersedia
+      const script = document.createElement("script");
+      script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+      script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY);
+      script.onload = () => resolve();
+      script.onerror = () => reject("Gagal memuat Midtrans Snap script");
+      document.body.appendChild(script);
+    });
+  };
+
   const handleCheckout = async () => {
     setLoading(true);
-    const res = await fetch("/api/checkout", { method: "POST" });
-    const data = await res.json();
 
-    if (data.token) {
-      window.snap.pay(data.token, {
-        onSuccess: function (result) {
-          alert("Pembayaran berhasil!");
-          router.push("/profile");
-        },
-        onPending: function (result) {
-          alert("Pembayaran pending...");
-          router.push("/profile");
-        },
-        onError: function (result) {
-          alert("Pembayaran gagal!");
-          setLoading(false);
-        },
-        onClose: function () {
-          alert("Transaksi dibatalkan");
-          setLoading(false);
-        },
-      });
-    } else {
+    try {
+      await loadMidtransScript(); // pastikan script dimuat
+
+      const res = await fetch("/api/checkout", { method: "POST" });
+      const data = await res.json();
+
+      if (data.token) {
+        window.snap.pay(data.token, {
+          onSuccess: function (result) {
+            alert("Pembayaran berhasil!");
+            router.push("/profile");
+          },
+          onPending: function (result) {
+            alert("Pembayaran pending...");
+            router.push("/profile");
+          },
+          onError: function (result) {
+            alert("Pembayaran gagal!");
+            setLoading(false);
+          },
+          onClose: function () {
+            alert("Transaksi dibatalkan");
+            setLoading(false);
+          },
+        });
+      } else {
+        alert("Gagal mendapatkan token Midtrans");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan saat memuat pembayaran");
       setLoading(false);
     }
   };
@@ -146,7 +168,7 @@ export default function CheckoutPage() {
                 <div className="h-4 bg-gray-200 rounded w-full" />
                 <div className="h-4 bg-gray-200 rounded w-3/4" />
                 <div className="h-4 bg-gray-200 rounded w-1/2" />
-                <div class="border-t pt-4">
+                <div className="border-t pt-4">
                   <div className="h-6 bg-emerald-100 rounded w-2/3" />
                 </div>
               </div>

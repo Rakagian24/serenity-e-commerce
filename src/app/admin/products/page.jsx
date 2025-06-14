@@ -1,4 +1,5 @@
 "use client";
+import AdminSidebar from "@/app/components/AdminSidebar";
 import { useState, useEffect } from "react";
 
 export default function ProductAdminPage() {
@@ -10,6 +11,7 @@ export default function ProductAdminPage() {
     description: "",
     price: "",
     category: "Baju",
+    gender: "Unisex",
     is_featured: false,
     is_active: true,
   });
@@ -55,6 +57,7 @@ export default function ProductAdminPage() {
         description: "",
         price: "",
         category: "Baju",
+        gender: "Unisex",
         is_featured: false,
         is_active: true,
       });
@@ -74,6 +77,7 @@ export default function ProductAdminPage() {
       description: product.description,
       price: product.price,
       category: product.category,
+      gender: product.gender,
       is_featured: !!product.is_featured,
       is_active: !!product.is_active,
     });
@@ -100,6 +104,7 @@ export default function ProductAdminPage() {
       description: "",
       price: "",
       category: "Baju",
+      gender: "Unisex",
       is_featured: false,
       is_active: true,
     });
@@ -107,6 +112,7 @@ export default function ProductAdminPage() {
 
   return (
     <div className="ml-72 min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+      <AdminSidebar />
       <div className="p-8">
         {/* Header */}
         <div className="mb-8">
@@ -170,19 +176,21 @@ export default function ProductAdminPage() {
                   />
                 </div>
 
-                {/* Price and Category Row */}
+                {/* Price */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">Harga</label>
+                  <input 
+                    type="number" 
+                    placeholder="50000" 
+                    value={form.price} 
+                    onChange={(e) => setForm({ ...form, price: e.target.value })} 
+                    className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300" 
+                    required 
+                  />
+                </div>
+
+                {/* Category and Gender Row */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700">Harga</label>
-                    <input 
-                      type="number" 
-                      placeholder="50000" 
-                      value={form.price} 
-                      onChange={(e) => setForm({ ...form, price: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300" 
-                      required 
-                    />
-                  </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-700">Kategori</label>
                     <select 
@@ -190,8 +198,20 @@ export default function ProductAdminPage() {
                       onChange={(e) => setForm({ ...form, category: e.target.value })} 
                       className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300"
                     >
-                      {["Pria", "Wanita", "Baju", "Jaket", "Celana", "Aksesoris"].map((cat) => (
+                      {["Baju", "Jaket", "Celana", "Aksesoris"].map((cat) => (
                         <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">Gender</label>
+                    <select 
+                      value={form.gender} 
+                      onChange={(e) => setForm({ ...form, gender: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300"
+                    >
+                      {["Pria", "Wanita", "Unisex"].map((gender) => (
+                        <option key={gender} value={gender}>{gender}</option>
                       ))}
                     </select>
                   </div>
@@ -331,9 +351,12 @@ export default function ProductAdminPage() {
                             <h4 className="font-bold text-gray-800 mb-1 line-clamp-2">
                               {product.description}
                             </h4>
-                            <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
                               <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
                                 {product.category}
+                              </span>
+                              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                                {product.gender}
                               </span>
                               <span className="font-semibold text-emerald-600">
                                 Rp {parseInt(product.price).toLocaleString()}

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["windows"]
 }
 
 datasource db {
@@ -7,115 +8,121 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                Int     @id @default(autoincrement())
-  name              String? 
-  email             String? @unique
-  password          String?
-  image             String?
-  role              Role     @default(customer)
-  email_verified    Boolean  @default(false)
-  created_at        DateTime @default(now())
-  shipping_name     String?
-  shipping_phone    String?
-  shipping_address  String?
-
-  accounts          Account[]
-  sessions          Session[]
-}
-
 model Account {
-  id                 Int     @id @default(autoincrement())
-  user_id            Int?
-  provider           String?
-  provider_account_id String?
-  access_token       String?
-  refresh_token      String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                Int     @id @default(autoincrement())
+  userId            Int?
+  type              String
+  provider          String
+  providerAccountId String
+  access_token      String? @db.Text
+  refresh_token     String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String? @db.Text
+  id_token          String? @db.Text
+  session_state     String? @db.Text
 
-  user               User?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([user_id])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
 }
 
 model Session {
-  id            Int      @id @default(autoincrement())
-  sessionToken  String   @unique
-  userId        Int
-  expires       DateTime
+  id           Int      @id @default(autoincrement())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime @db.DateTime(0)
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model VerificationToken {
   id         Int      @id @default(autoincrement())
-  identifier String?
-  token      String?  @unique
-  expires    DateTime?
+  identifier String
+  token      String
+  expires    DateTime @db.DateTime(0)
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
-model Product {
-  id           Int      @id @default(autoincrement())
-  image_url    String
-  description  String
-  price        Decimal  @db.Decimal(12, 2)
-  category     Category
-  is_featured  Boolean  @default(false)
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+model User {
+  id               Int         @id @default(autoincrement())
+  name             String?     @db.VarChar(100)
+  email            String?     @unique(map: "email") @db.VarChar(255)
+  password         String?     @db.VarChar(255)
+  image            String?     @db.Text
+  role             users_role? @default(customer)
+  email_verified   Boolean?    @default(false)
+  created_at       DateTime?   @default(now()) @db.DateTime(0)
+  shipping_name    String?     @db.VarChar(100)
+  shipping_phone   String?     @db.VarChar(20)
+  shipping_address String?     @db.Text
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
 }
 
-model Cart {
-  id         Int      @id @default(autoincrement())
+model carts {
+  id         Int       @id @default(autoincrement())
   user_id    Int?
   product_id Int?
-  quantity   Int      @default(1)
-  created_at DateTime @default(now())
+  quantity   Int?      @default(1)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
 }
 
-model Order {
-  id               Int       @id @default(autoincrement())
-  user_id          Int?
-  total_price      Int?
-  status           OrderStatus @default(pending)
-  created_at       DateTime @default(now())
-  resi             String?
-  courier          String?
-  delivery_status  DeliveryStatus @default(pending)
-  complaint        String?
-  shipping_name    String?
-  shipping_phone   String?
-  shipping_address String?
+model messages {
+  id          Int       @id @default(autoincrement())
+  sender_id   Int
+  receiver_id Int
+  message     String    @db.Text
+  timestamp   DateTime? @default(now()) @db.DateTime(0)
 }
 
-model OrderItem {
-  id         Int    @id @default(autoincrement())
+model order_items {
+  id         Int  @id @default(autoincrement())
   order_id   Int?
   product_id Int?
   quantity   Int?
   price      Int?
 }
 
-enum Role {
-  admin
-  customer
+model orders {
+  id                Int                     @id @default(autoincrement())
+  user_id           Int?
+  total_price       Int?
+  status            orders_status?          @default(pending)
+  created_at        DateTime?               @default(now()) @db.Timestamp(0)
+  resi              String?                 @db.VarChar(50)
+  courier           String?                 @db.VarChar(50)
+  delivery_status   orders_delivery_status? @default(pending)
+  complaint         String?                 @db.Text
+  shipping_name     String?                 @db.VarChar(100)
+  shipping_phone    String?                 @db.VarChar(20)
+  shipping_address  String?                 @db.Text
+  midtrans_order_id String?                 @db.VarChar(100)
 }
 
-enum Category {
-  Pria
-  Wanita
-  Baju
-  Jaket
-  Celana
-  Aksesoris
+model products {
+  id          Int               @id @default(autoincrement())
+  image_url   String            @db.Text
+  description String            @db.Text
+  price       Decimal           @db.Decimal(12, 2)
+  category    products_category
+  gender      products_gender   @default(Unisex)
+  is_featured Boolean?          @default(false)
+  is_active   Boolean?          @default(true)
+  created_at  DateTime?         @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?         @default(now()) @db.Timestamp(0)
 }
 
-enum OrderStatus {
+enum orders_status {
   pending
   paid
   shipped
@@ -123,7 +130,25 @@ enum OrderStatus {
   cancelled
 }
 
-enum DeliveryStatus {
+enum users_role {
+  admin
+  customer
+}
+
+enum products_category {
+  Baju
+  Jaket
+  Celana
+  Aksesoris
+}
+
+enum products_gender {
+  Pria
+  Wanita
+  Unisex
+}
+
+enum orders_delivery_status {
   pending
   shipped
   received

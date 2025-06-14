@@ -1,5 +1,6 @@
 // /app/profile/page.jsx
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import Navbar from "@/app/components/Navbar";
 
@@ -222,12 +223,15 @@ export default function ProfilePage() {
                         {orders.map((order, index) => (
                           <tr key={order.id} className={`border-b border-emerald-50 hover:bg-emerald-25 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-emerald-25/50'}`}>
                             <td className="p-4">
-                              <a 
-                                href={`/orders/${order.id}`} 
-                                className="text-emerald-600 hover:text-emerald-700 font-semibold hover:underline transition-colors"
+                              <div className="flex flex-col">
+                              <span className="font-semibold text-gray-700">#{order.id}</span>
+                              <Link
+                                href={`/orders/${order.id}`}
+                                className="text-sm text-emerald-600 hover:text-emerald-700 underline mt-1"
                               >
-                                #{order.id}
-                              </a>
+                                Lihat Detail
+                              </Link>
+                            </div>
                             </td>
                             <td className="p-4 text-gray-700">
                               {new Date(order.created_at).toLocaleDateString('id-ID')}

@@ -12,12 +12,13 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const session = await getServerSession(authOptions);
   const user = session?.user || null;
+
   return (
     <html lang="en">
       <body>
-        <Providers>
+        <Providers session={session}>
           <LiveChatProvider user={user}>
-          {children}
+            {children}
           </LiveChatProvider>
         </Providers>
       </body>

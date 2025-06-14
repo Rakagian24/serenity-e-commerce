@@ -65,7 +65,10 @@ export default function ProductDetail() {
               </div>
               <div className="space-y-6">
                 <div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse" />
-                <div className="h-4 bg-emerald-100 rounded w-1/4 animate-pulse" />
+                <div className="flex space-x-2">
+                  <div className="h-4 bg-emerald-100 rounded-full w-1/4 animate-pulse" />
+                  <div className="h-4 bg-blue-100 rounded-full w-1/4 animate-pulse" />
+                </div>
                 <div className="h-6 bg-emerald-100 rounded w-1/3 animate-pulse" />
                 <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
                 <div className="h-12 bg-emerald-100 rounded-xl animate-pulse" />
@@ -151,6 +154,9 @@ export default function ProductDetail() {
                   <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
                     {product.category}
                   </span>
+                  <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                    {product.gender}
+                  </span>
                   {product.is_featured && (
                     <span className="text-sm font-medium text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full flex items-center space-x-1">
                       <span>⭐</span>
@@ -174,10 +180,20 @@ export default function ProductDetail() {
               {/* Product Description */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-emerald-100">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Deskripsi Produk</h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed mb-4">
                   {product.description} - Produk berkualitas tinggi dengan desain modern dan nyaman digunakan. 
                   Terbuat dari bahan premium yang tahan lama dan cocok untuk berbagai aktivitas sehari-hari.
                 </p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Kategori:</span>
+                    <span className="font-medium text-gray-800">{product.category}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Gender:</span>
+                    <span className="font-medium text-gray-800">{product.gender}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Quantity & Add to Cart */}

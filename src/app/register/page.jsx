@@ -59,7 +59,7 @@ export default function Register() {
                   placeholder="Masukkan nama lengkap Anda"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 text-gray-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -80,7 +80,7 @@ export default function Register() {
                   placeholder="Masukkan email Anda"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 text-gray-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -101,7 +101,7 @@ export default function Register() {
                   placeholder="Masukkan password Anda"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 text-gray-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">

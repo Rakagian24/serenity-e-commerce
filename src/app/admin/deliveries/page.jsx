@@ -27,13 +27,12 @@ export default function DeliveriesPage() {
       const res = await fetch(`/api/orders/tracking/${orderId}`);
       const data = await res.json();
 
-      if (data.result?.summary) {
+      if (data.resi && data.courier) {
         setSelectedTracking({
           orderId,
-          status: data.result.summary.status,
-          courier: data.result.summary.courier_name,
-          resi: data.result.summary.waybill_number,
-          details: data.result
+          status: data.delivery_status, // gunakan delivery_status langsung
+          courier: data.courier,
+          resi: data.resi,
         });
         setShowTrackingModal(true);
       } else {
@@ -68,6 +67,17 @@ export default function DeliveriesPage() {
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
+
+  const getDeliveryStatusIcon = (status) => {
+    switch(status) {
+      case 'pending': return '📋';
+      case 'shipped': return '🚚';
+      case 'received': return '✅';
+      case 'returned': return '↩️';
+      default: return '📦';
+    }
+  };
+
 
   const getCourierIcon = (courier) => {
     if (courier?.toLowerCase().includes('jne')) return '🟡';
@@ -263,7 +273,9 @@ export default function DeliveriesPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Status:</span>
-                      <span className="font-medium">{selectedTracking.status}</span>
+                      <span className="font-medium">
+                        {getDeliveryStatusIcon(selectedTracking.status)} {selectedTracking.status}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Kurir:</span>
@@ -272,6 +284,16 @@ export default function DeliveriesPage() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Resi:</span>
                       <code className="font-mono bg-gray-100 px-2 py-1 rounded">{selectedTracking.resi}</code>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tracking:</span>
+                      <a 
+                        href={`https://cekresi.com/?noresi=${selectedTracking.resi}`} 
+                        target="_blank"
+                        className="text-emerald-600 hover:underline"
+                      >
+                        Lihat di CekResi.com
+                      </a>
                     </div>
                   </div>
                 </div>

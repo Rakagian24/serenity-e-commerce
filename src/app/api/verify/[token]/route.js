@@ -1,7 +1,7 @@
 import { pool } from "@/lib/db";
 
 export async function GET(req, { params }) {
-  const token = params.token;
+  const { token } = await params;
   const [rows] = await pool.query("SELECT * FROM verification_tokens WHERE token = ?", [token]);
   const record = rows[0];
 

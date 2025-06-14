@@ -55,7 +55,7 @@ export default function LoginPage() {
                   placeholder="Masukkan email Anda"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 text-gray-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -76,7 +76,7 @@ export default function LoginPage() {
                   placeholder="Masukkan password Anda"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-200 text-gray-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-300 bg-emerald-50/30"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -131,7 +131,11 @@ export default function LoginPage() {
 
             <button
               type="button"
-              onClick={() => signIn("google")}
+              onClick={() =>
+                signIn("google", {
+                  callbackUrl: "/"
+                })
+              }
               className="w-full flex items-center justify-center px-4 py-3 border border-emerald-200 rounded-xl shadow-sm bg-white text-gray-700 font-medium hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-all duration-300"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
