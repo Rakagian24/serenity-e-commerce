@@ -8,6 +8,7 @@ export default function DeliveriesPage() {
   const [trackingInfo, setTrackingInfo] = useState({});
   const [showTrackingModal, setShowTrackingModal] = useState(false);
   const [selectedTracking, setSelectedTracking] = useState(null);
+  const [processingOrders, setProcessingOrders] = useState(new Set());
 
   const fetchDeliveries = async () => {
     setLoading(true);
@@ -22,14 +23,30 @@ export default function DeliveriesPage() {
     }
   };
 
-  const handleTracking = async (orderId) => {
+  const acceptOrder = async (id) => { 
+    setProcessingOrders(prev => new Set([...prev, id])); 
+    try { 
+      await fetch(`/api/orders/${id}/confirm`, { method: "POST" }); 
+      fetchDeliveries(); // Refresh the deliveries list
+    } catch (error) { 
+      console.error("Error accepting order:", error); 
+    } finally { 
+      setProcessingOrders(prev => { 
+        const newSet = new Set(prev); 
+        newSet.delete(id); 
+        return newSet; 
+      }); 
+    } 
+  };
+
+  const handleTracking = async (id) => {
     try {
-      const res = await fetch(`/api/orders/tracking/${orderId}`);
+      const res = await fetch(`/api/orders/tracking/${id}`);
       const data = await res.json();
 
       if (data.resi && data.courier) {
         setSelectedTracking({
-          orderId,
+          id,
           status: data.delivery_status, // gunakan delivery_status langsung
           courier: data.courier,
           resi: data.resi,
@@ -72,12 +89,11 @@ export default function DeliveriesPage() {
     switch(status) {
       case 'pending': return '📋';
       case 'shipped': return '🚚';
-      case 'received': return '✅';
+      case 'delivered': return '✅';
       case 'returned': return '↩️';
       default: return '📦';
     }
   };
-
 
   const getCourierIcon = (courier) => {
     if (courier?.toLowerCase().includes('jne')) return '🟡';
@@ -227,20 +243,43 @@ export default function DeliveriesPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t border-emerald-200">
+                      <div className="space-y-3 pt-4 border-t border-emerald-200">
                         {order.customer_name && (
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <span className="font-medium">👤 Customer:</span>
                             <span>{order.customer_name}</span>
                           </div>
                         )}
-                        <button
-                          onClick={() => handleTracking(order.id)}
-                          className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center space-x-2"
-                        >
-                          <span>🔍</span>
-                          <span>Lihat Tracking</span>
-                        </button>
+                        
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleTracking(order.id)}
+                            className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center space-x-2"
+                          >
+                            <span>🔍</span>
+                            <span>Lihat Tracking</span>
+                          </button>
+
+                          {order.delivery_status === 'shipped' && ( 
+                            <button 
+                              onClick={() => acceptOrder(order.id)} 
+                              disabled={processingOrders.has(order.id)} 
+                              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2" 
+                            > 
+                              {processingOrders.has(order.id) ? ( 
+                                <> 
+                                  <span className="animate-spin">⟳</span> 
+                                  <span>Memproses...</span> 
+                                </> 
+                              ) : ( 
+                                <> 
+                                  <span>✅</span> 
+                                  <span>Tandai Pesanan Diterima</span> 
+                                </> 
+                              )} 
+                            </button> 
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -268,7 +307,7 @@ export default function DeliveriesPage() {
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-lg">📦</span>
-                    <span className="font-bold">Order #{selectedTracking.orderId}</span>
+                    <span className="font-bold">Order #{selectedTracking.id}</span>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -284,16 +323,6 @@ export default function DeliveriesPage() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Resi:</span>
                       <code className="font-mono bg-gray-100 px-2 py-1 rounded">{selectedTracking.resi}</code>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Tracking:</span>
-                      <a 
-                        href={`https://cekresi.com/?noresi=${selectedTracking.resi}`} 
-                        target="_blank"
-                        className="text-emerald-600 hover:underline"
-                      >
-                        Lihat di CekResi.com
-                      </a>
                     </div>
                   </div>
                 </div>

@@ -68,7 +68,7 @@ export async function GET() {
         u.name as user_name
       FROM orders o
       LEFT JOIN users u ON o.user_id = u.id
-      WHERE o.status IN ('paid', 'shipped', 'delivered')
+      WHERE o.status IN ('paid', 'shipped', 'received')
       ORDER BY o.created_at DESC
       LIMIT 2
     `);

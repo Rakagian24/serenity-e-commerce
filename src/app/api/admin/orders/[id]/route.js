@@ -6,11 +6,11 @@ export async function GET(req, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const { orderId } = await params;
+  const { id } = await params;
 
   const [[order]] = await pool.query(
     `SELECT * FROM orders WHERE id = ?`,
-    [orderId]
+    [id]
   );
 
   if (!order) return new Response("Not Found", { status: 404 });
@@ -24,7 +24,7 @@ export async function GET(req, { params }) {
      FROM order_items oi
      JOIN products p ON oi.product_id = p.id
      WHERE oi.order_id = ?`,
-    [orderId]
+    [id]
   );
 
   return Response.json({ order, items });

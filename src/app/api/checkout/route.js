@@ -44,15 +44,15 @@ export async function POST() {
     shipping.shipping_address
   ]);
 
-  const orderId = orderResult.insertId;
-  console.log("📝 Order berhasil disimpan dengan ID:", orderId);
+  const id = orderResult.insertId;
+  console.log("📝 Order berhasil disimpan dengan ID:", id);
 
   // Simpan item
   for (const item of cartItems) {
     await pool.query(`
       INSERT INTO order_items (order_id, product_id, quantity, price)
       VALUES (?, ?, ?, ?)
-    `, [orderId, item.product_id, item.quantity, item.price]);
+    `, [id, item.product_id, item.quantity, item.price]);
   }
 
   // Kosongkan keranjang
@@ -61,10 +61,11 @@ export async function POST() {
   // Setup Midtrans
   const snap = new midtransClient.Snap({
     isProduction: false,
-    serverKey: process.env.MIDTRANS_SERVER_KEY,
+    serverKey: process.env.NEXT_PUBLIC_MIDTRANS_SERVER_KEY,
+    clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
   });
 
-  const customOrderId = `ORDER-${orderId}-${Date.now()}`;
+  const customOrderId = `ORDER-${id}-${Date.now()}`;
 
   const transaction = await snap.createTransaction({
     transaction_details: {
@@ -84,8 +85,8 @@ export async function POST() {
   console.log("🧾 Transaksi Midtrans berhasil dibuat:", transaction);
 
   const [updateResult] = await pool.query(
-    `UPDATE orders SET midtrans_order_id = ? WHERE id = ?`,
-    [customOrderId, orderId]
+    `UPDATE orders SET midtrans_order_id = ?, midtrans_token = ? WHERE id = ?`,
+    [customOrderId, transaction.token, id]
   );
   console.log("📦 midtrans_order_id berhasil disimpan ke orders:", updateResult);
 

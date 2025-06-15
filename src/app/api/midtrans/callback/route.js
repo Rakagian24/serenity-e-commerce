@@ -2,22 +2,12 @@ import { pool } from "@/lib/db";
 import crypto from "crypto";
 
 export async function POST(req) {
-  // Log bahwa function dipanggil
-  console.log("🔥🔥🔥 [MIDTRANS CALLBACK] FUNCTION DIPANGGIL! 🔥🔥🔥");
-  console.log("🕐 Timestamp:", new Date().toISOString());
-  
-  try {
-    console.log("🔥 [MIDTRANS CALLBACK] DITERIMA");
-    console.log("🌐 Request headers:", Object.fromEntries(req.headers.entries()));
-    console.log("🔗 Request URL:", req.url);
-    console.log("📍 User-Agent:", req.headers.get('user-agent'));
-    console.log("🔍 Method:", req.method);
-    console.log("🌍 Origin:", req.headers.get('origin'));
-    console.log("🔗 Referer:", req.headers.get('referer'));
+  console.log("🔥🔥🔥 [MIDTRANS CALLBACK] MASUK!");
+  console.log("🕐 Waktu:", new Date().toISOString());
 
+  try {
     // Baca raw body
     const rawBody = await req.text();
-    console.log("📦 Raw body length:", rawBody.length);
     console.log("📦 Raw body:", rawBody);
 
     if (!rawBody) {
@@ -29,89 +19,71 @@ export async function POST(req) {
     let body;
     try {
       body = JSON.parse(rawBody);
-    } catch (parseError) {
-      console.error("❌ JSON Parse Error:", parseError);
+    } catch (e) {
+      console.error("❌ Gagal parse JSON:", e.message);
       return new Response("Invalid JSON", { status: 400 });
     }
-
-    console.log("✅ Parsed JSON body:", JSON.stringify(body, null, 2));
 
     const {
       order_id,
       status_code,
       gross_amount,
-      signature_key: signatureFromMidtrans,
+      signature_key,
       transaction_status,
       fraud_status,
       payment_type,
       transaction_time,
-      transaction_id,
+      transaction_id
     } = body;
 
-    // Validasi field wajib
-    if (!order_id || !status_code || !gross_amount || !signatureFromMidtrans) {
-      console.error("❌ Field wajib tidak lengkap:", {
-        order_id: !!order_id,
-        status_code: !!status_code,
-        gross_amount: !!gross_amount,
-        signature: !!signatureFromMidtrans
-      });
+    // Validasi isian wajib
+    if (!order_id || !status_code || !gross_amount || !signature_key) {
+      console.error("❌ Field wajib kosong:", { order_id, status_code, gross_amount, signature_key });
       return new Response("Missing required fields", { status: 400 });
     }
 
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
     if (!serverKey) {
-      console.error("❌ MIDTRANS_SERVER_KEY tidak ditemukan!");
-      return new Response("Server configuration error", { status: 500 });
+      console.error("❌ MIDTRANS_SERVER_KEY tidak tersedia!");
+      return new Response("Missing server key", { status: 500 });
     }
 
-    const formattedGross = parseFloat(gross_amount).toFixed(1); // Midtrans biasanya pakai 1 decimal
+    // ⚠️ Signature harus berdasarkan gross_amount asli (string), tanpa parsing ulang
     const expectedSignature = crypto
       .createHash("sha512")
-      .update(order_id + status_code + formattedGross + serverKey)
+      .update(order_id + status_code + gross_amount + serverKey)
       .digest("hex");
 
-
-    console.log("🔐 Signature Check:", {
-      order_id,
-      status_code,
-      gross_amount,
-      transaction_status,
-      fraud_status,
-      payment_type,
-      expectedSignature,
-      signatureFromMidtrans,
-      match: signatureFromMidtrans === expectedSignature
-    });
-
-    if (signatureFromMidtrans !== expectedSignature) {
+    if (signature_key !== expectedSignature) {
       console.error("❌ Signature tidak cocok!");
-      console.error("Expected:", expectedSignature);
-      console.error("Received:", signatureFromMidtrans);
-      return new Response("Invalid signature", { status: 403 });
+      console.log("Expected:", expectedSignature);
+      console.log("Received:", signature_key);
+      return new Response("Invalid signature", { status: 403 }); // ⛔️ Stop
     }
 
-    // Cek apakah order ada di database
-    const [existingOrder] = await pool.query(
-      `SELECT id, status, total_price FROM orders WHERE midtrans_order_id = ?`,
+    // Cari order berdasarkan midtrans_order_id
+    const [orderRows] = await pool.query(
+      `SELECT id FROM orders WHERE midtrans_order_id = ?`,
       [order_id]
     );
 
-    if (existingOrder.length === 0) {
+    if (orderRows.length === 0) {
       console.error("❌ Order tidak ditemukan:", order_id);
+      const [allOrders] = await pool.query(`SELECT midtrans_order_id FROM orders`);
+      console.log("📋 Semua order ID yang ada:", allOrders.map(o => o.midtrans_order_id));
       return new Response("Order not found", { status: 404 });
     }
 
-    console.log("📋 Existing order:", existingOrder[0]);
+    const order = orderRows[0];
 
-    // Mapping status dengan lebih detail
+    // Tentukan status baru berdasarkan status Midtrans
     let newStatus = "pending";
-    let newDeliveryStatus = "pending";
+    let deliveryStatus = "pending";
 
     if (transaction_status === "capture") {
       if (fraud_status === "accept") {
         newStatus = "paid";
-        newDeliveryStatus = "processing";
+        deliveryStatus = "processing";
       } else if (fraud_status === "challenge") {
         newStatus = "pending";
       } else {
@@ -119,60 +91,52 @@ export async function POST(req) {
       }
     } else if (transaction_status === "settlement") {
       newStatus = "paid";
-      newDeliveryStatus = "processing";
+      deliveryStatus = "processing";
     } else if (transaction_status === "pending") {
       newStatus = "pending";
     } else if (["cancel", "deny", "expire", "failure"].includes(transaction_status)) {
       newStatus = "cancelled";
-      newDeliveryStatus = "pending"; // atau null tergantung logika bisnis
     }
 
-    console.log("🎯 Status baru:", newStatus);
-    console.log("📦 Delivery status baru:", newDeliveryStatus);
+    console.log("📦 Update order:", order_id);
+    console.log("➡️ Status:", newStatus, "➡️ Delivery:", deliveryStatus);
 
-    // Update database dengan kedua kolom
-    const [result] = await pool.query(
-      `UPDATE orders 
-      SET status = ?, delivery_status = ?, updated_at = NOW()
-      WHERE midtrans_order_id = ?`,
-      [newStatus, newDeliveryStatus, order_id]
+    // Update status di database
+    const [updateResult] = await pool.query(
+      `UPDATE orders SET status = ?, delivery_status = ? WHERE midtrans_order_id = ?`,
+      [newStatus, deliveryStatus, order_id]
     );
 
-    console.log("🔁 Hasil update DB:", {
-      affectedRows: result.affectedRows,
-      changedRows: result.changedRows,
-      newStatus
+    console.log("✅ Order berhasil diupdate:", {
+      affectedRows: updateResult.affectedRows,
+      changedRows: updateResult.changedRows
     });
 
-    if (result.affectedRows === 0) {
-      console.error("❌ Tidak ada row yang terupdate!");
-      return new Response("Update failed", { status: 500 });
-    }
-
-    console.log(`✅ Pesanan ${order_id} berhasil diupdate ke: ${newStatus}`);
-
-    // Log untuk monitoring
+    // Simpan log transaksi
     await pool.query(
-      `INSERT INTO payment_logs (order_id, transaction_status, fraud_status, payment_type, raw_response, created_at) 
+      `INSERT INTO payment_logs (order_id, transaction_status, fraud_status, payment_type, raw_response, created_at)
        VALUES (?, ?, ?, ?, ?, NOW())`,
-      [order_id, transaction_status, fraud_status || '', payment_type || '', JSON.stringify(body)]
-    ).catch(logError => {
-      console.warn("⚠️ Failed to save payment log:", logError.message);
+      [order_id, transaction_status, fraud_status || "", payment_type || "", JSON.stringify(body)]
+    ).catch((err) => {
+      console.warn("⚠️ Gagal menyimpan log transaksi:", err.message);
     });
 
     return Response.json({ success: true, status: newStatus });
   } catch (err) {
-    console.error("🚨 Terjadi kesalahan di Midtrans Callback:", err);
-    console.error("🚨 Stack trace:", err.stack);
+    console.error("🚨 Error di callback:", err);
     return new Response("Internal Server Error", { status: 500 });
   }
 }
 
-// Handle GET untuk testing
+// Endpoint GET (cek manual)
 export async function GET() {
-  console.log("🔍 GET request ke Midtrans callback endpoint");
-  return Response.json({ 
+  const serverKey = process.env.MIDTRANS_SERVER_KEY;
+
+  return Response.json({
     message: "Midtrans callback endpoint is working",
-    timestamp: new Date().toISOString() 
+    time: new Date().toISOString(),
+    serverKey: serverKey ? "[✅ Terdeteksi]" : "[❌ Tidak Terdeteksi]", // Untuk keamanan, hanya status
+    rawServerKey: serverKey || null, // ⚠️ Jangan aktifkan di production
   });
 }
+

@@ -10,6 +10,13 @@
 !.yarn/releases
 !.yarn/versions
 
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+*.local.yml
+*.env.local
+
+
 # testing
 /coverage
 
@@ -41,3 +48,5 @@ yarn-error.log*
 next-env.d.ts
 
 ngrok.exe
+
+hitung-signature.js

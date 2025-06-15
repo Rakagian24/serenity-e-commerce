@@ -11,7 +11,7 @@ export async function GET() {
 
     // Successful Transactions (paid, shipped, delivered)
     const [transactionResult] = await pool.execute(
-      "SELECT COUNT(*) as total FROM orders WHERE status IN ('paid', 'shipped', 'delivered')"
+      "SELECT COUNT(*) as total FROM orders WHERE status IN ('paid', 'shipped', 'received')"
     );
     const successfulTransactions = transactionResult[0].total;
 
@@ -47,7 +47,7 @@ export async function GET() {
 
     // Total Revenue (from successful transactions)
     const [revenueResult] = await pool.execute(
-      "SELECT COALESCE(SUM(total_price), 0) as total FROM orders WHERE status IN ('paid', 'shipped', 'delivered')"
+      "SELECT COALESCE(SUM(total_price), 0) as total FROM orders WHERE status IN ('paid', 'shipped', 'received')"
     );
     const totalRevenue = revenueResult[0].total;
 

@@ -105,7 +105,7 @@ export default function OrderDetailPage() {
       case 'paid': return 'bg-blue-100 text-blue-800';
       case 'processing': return 'bg-purple-100 text-purple-800';
       case 'shipped': return 'bg-indigo-100 text-indigo-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'received': return 'bg-green-100 text-green-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -115,7 +115,7 @@ export default function OrderDetailPage() {
     switch(status) {
       case 'pending': return '📋';
       case 'shipped': return '🚚';
-      case 'received': return '✅';
+      case 'delivered': return '✅';
       case 'returned': return '↩️';
       default: return '📦';
     }
@@ -333,7 +333,8 @@ export default function OrderDetailPage() {
                 </h2>
               </div>
               <div className="p-6">
-                <OrderActions orderId={order.id} />
+                {/* Pass both id and status to OrderActions */}
+                <OrderActions id={order.id} status={order.status} />
               </div>
             </div>
           </div>

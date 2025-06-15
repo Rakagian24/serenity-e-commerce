@@ -3,7 +3,9 @@ import { authOptions } from "@/lib/auth";
 import { pool } from "@/lib/db";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+ const session = await getServerSession(authOptions);
+if (!session) return new Response("Unauthorized", { status: 401 });
+
   const [rows] = await pool.query(`
     SELECT carts.id, carts.quantity, products.description, products.price, products.image_url, products.category
     FROM carts
@@ -14,7 +16,9 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
+ const session = await getServerSession(authOptions);
+if (!session) return new Response("Unauthorized", { status: 401 });
+
   const { product_id, quantity } = await req.json();
   await pool.query(`
     INSERT INTO carts (user_id, product_id, quantity) VALUES (?, ?, ?)
@@ -23,7 +27,9 @@ export async function POST(req) {
 }
 
 export async function DELETE(req) {
-  const session = await getServerSession(authOptions);
+ const session = await getServerSession(authOptions);
+if (!session) return new Response("Unauthorized", { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   await pool.query(`DELETE FROM carts WHERE id = ? AND user_id = ?`, [id, session.user.id]);
@@ -31,7 +37,9 @@ export async function DELETE(req) {
 }
 
 export async function PUT(req) {
-  const session = await getServerSession(authOptions);
+ const session = await getServerSession(authOptions);
+if (!session) return new Response("Unauthorized", { status: 401 });
+
   const { id, quantity } = await req.json();
 
   // Validasi quantity

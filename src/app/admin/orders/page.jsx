@@ -24,7 +24,7 @@ export default function OrdersPage() {
   const acceptOrder = async (id) => {
     setProcessingOrders(prev => new Set([...prev, id]));
     try {
-      await fetch(`/api/admin/orders/${id}/confirm`, { method: "POST" });
+      await fetch(`/api/orders/${id}/confirm`, { method: "POST" });
       fetchOrders();
     } catch (error) {
       console.error("Error accepting order:", error);
@@ -37,14 +37,14 @@ export default function OrdersPage() {
     }
   };
 
-  const handleSubmit = async (e, orderId) => {
+  const handleSubmit = async (e, id) => {
     e.preventDefault();
     const resi = e.target.resi.value;
     const courier = e.target.courier.value;
 
-    setProcessingOrders(prev => new Set([...prev, orderId]));
+    setProcessingOrders(prev => new Set([...prev, id]));
     try {
-      await fetch(`/api/admin/orders/${orderId}/send`, {
+      await fetch(`/api/admin/orders/${id}/send`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export default function OrdersPage() {
     } finally {
       setProcessingOrders(prev => {
         const newSet = new Set(prev);
-        newSet.delete(orderId);
+        newSet.delete(id);
         return newSet;
       });
     }
@@ -73,7 +73,7 @@ export default function OrdersPage() {
       case 'paid': return '💳';
       case 'accepted': return '✅';
       case 'shipped': return '🚚';
-      case 'delivered': return '📦';
+      case 'received': return '📦';
       case 'cancelled': return '❌';
       case 'pending': return '⌛';
       default: return '📋';
@@ -85,7 +85,7 @@ export default function OrdersPage() {
       case 'paid': return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'accepted': return 'bg-green-100 text-green-700 border-green-200';
       case 'shipped': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'delivered': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'received': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
       case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
@@ -313,7 +313,7 @@ export default function OrdersPage() {
 
                       {/* Action Buttons */}
                       <div className="space-y-4">
-                        {order.delivery_status === 'pending' && (
+                        {order.delivery_status === 'shipped' && (
                           <button
                             onClick={() => acceptOrder(order.id)}
                             disabled={processingOrders.has(order.id)}
@@ -333,7 +333,7 @@ export default function OrdersPage() {
                           </button>
                         )}
 
-                        {order.delivery_status === 'pending' && (
+                        {order.delivery_status === 'processing' && (
                           <form onSubmit={(e) => handleSubmit(e, order.id)} className="bg-white rounded-lg p-4 border border-emerald-200">
                             <h4 className="font-medium text-gray-800 mb-3 flex items-center space-x-2">
                               <span>🚚</span>

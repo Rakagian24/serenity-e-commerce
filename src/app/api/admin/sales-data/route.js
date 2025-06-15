@@ -9,7 +9,7 @@ export async function GET() {
         DATE_FORMAT(created_at, '%Y-%m') as month,
         COALESCE(SUM(total_price), 0) as total_sales
       FROM orders 
-      WHERE status IN ('paid', 'shipped', 'delivered')
+      WHERE status IN ('paid', 'shipped', 'received')
         AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
       GROUP BY month
       ORDER BY month

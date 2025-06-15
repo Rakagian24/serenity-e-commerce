@@ -6,12 +6,12 @@ export async function GET(_, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const { orderId } = await params;
+  const { id } = await params;
 
   // Ambil info order
   const [[order]] = await pool.query(
     `SELECT * FROM orders WHERE id = ? AND user_id = ?`,
-    [orderId, session.user.id]
+    [id, session.user.id]
   );
 
   if (!order) {
@@ -23,7 +23,7 @@ export async function GET(_, { params }) {
     `SELECT oi.*, p.description, p.image_url FROM order_items oi
      JOIN products p ON p.id = oi.product_id
      WHERE oi.order_id = ?`,
-    [orderId]
+    [id]
   );
 
   return Response.json({ order, items });

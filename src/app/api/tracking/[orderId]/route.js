@@ -1,6 +1,6 @@
 export async function GET(req, { params }) {
-  const { orderId } = params;
-  const [orders] = await pool.query(`SELECT resi, courier FROM orders WHERE id = ?`, [orderId]);
+  const { id } = params;
+  const [orders] = await pool.query(`SELECT resi, courier FROM orders WHERE id = ?`, [id]);
 
   if (!orders.length) return Response.json({ error: "Order not found" }, { status: 404 });
 
