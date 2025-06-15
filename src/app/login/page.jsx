@@ -1,23 +1,52 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
+import ReCAPTCHA from "react-google-recaptcha";
+
+const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const recaptchaRef = useRef(null);
+
+  const handleCaptchaChange = (token) => {
+    setCaptchaToken(token);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!captchaToken) {
+      alert("Silakan verifikasi reCAPTCHA terlebih dahulu.");
+      return;
+    }
+    console.log("captchaToken being sent:", captchaToken);
+
+    console.log("Verifying login with captcha:", captchaToken);
+
     setLoading(true);
     const res = await signIn("credentials", {
       email,
       password,
+      redirect: false,
       callbackUrl: "/",
+      captcha: captchaToken, // <-- tetap
     });
     setLoading(false);
+
+    // Reset token agar tidak reuse
+    recaptchaRef.current?.reset();
+    setCaptchaToken(null);
+
+    if (!res?.ok) {
+      alert("Login gagal. Periksa kembali email dan password Anda.");
+    }
   };
 
   return (
@@ -95,6 +124,15 @@ export default function LoginPage() {
               <Link href="/forgot-password" className="text-emerald-600 hover:text-emerald-700 font-medium">
                 Lupa password?
               </Link>
+            </div>
+
+            {/* reCAPTCHA */}
+            <div className="flex justify-center">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={SITE_KEY}
+                onChange={handleCaptchaChange}
+              />
             </div>
 
             <button 
