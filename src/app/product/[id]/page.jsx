@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const { data: session, status } = useSession();
 
   const fetchProduct = async () => {
     setLoading(true);
@@ -21,29 +23,147 @@ export default function ProductDetail() {
   };
 
   const addToCart = async () => {
-    setAddingToCart(true);
-    await fetch("/api/cart", {
-      method: "POST",
-      body: JSON.stringify({ product_id: product.id, quantity }),
-    });
-    setAddingToCart(false);
-    
-    // Custom alert dengan styling
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'fixed top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-4 rounded-xl shadow-lg z-50 flex items-center space-x-2';
-    alertDiv.innerHTML = `
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-      </svg>
-      <span>Produk berhasil ditambahkan ke keranjang!</span>
-    `;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-      alertDiv.remove();
-    }, 3000);
-  };
+    if (!session) {
+      // Custom alert untuk belum login dengan button login
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'fixed top-4 right-4 bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-4 rounded-xl shadow-lg z-50 max-w-sm';
+      alertDiv.innerHTML = `
+        <div class="flex items-start space-x-3">
+          <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <div class="flex-1">
+            <p class="font-medium mb-2">Silakan login terlebih dahulu</p>
+            <p class="text-sm opacity-90 mb-3">Anda perlu login untuk menambahkan produk ke keranjang</p>
+            <div class="flex space-x-2">
+              <button 
+                onclick="window.location.href='/login'" 
+                class="bg-white text-red-600 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+              >
+                Login
+              </button>
+              <button 
+                onclick="this.closest('.fixed').remove()" 
+                class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors border border-red-400"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+          <button 
+            onclick="this.closest('.fixed').remove()" 
+            class="text-white hover:text-gray-200 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+      document.body.appendChild(alertDiv);
+      
+      // Auto remove setelah 5 detik
+      setTimeout(() => {
+        if (alertDiv.parentNode) {
+          alertDiv.remove();
+        }
+      }, 5000);
+      
+      return;
+    }
 
+    setAddingToCart(true);
+    
+    try {
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product_id: product.id, quantity }),
+      });
+
+      if (response.ok) {
+        // Custom alert sukses
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'fixed top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-4 rounded-xl shadow-lg z-50 flex items-center space-x-2';
+        alertDiv.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Produk berhasil ditambahkan ke keranjang!</span>
+          <button 
+            onclick="this.closest('.fixed').remove()" 
+            class="text-white hover:text-gray-200 transition-colors ml-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+          if (alertDiv.parentNode) {
+            alertDiv.remove();
+          }
+        }, 3000);
+      } else {
+        // Custom alert error
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'fixed top-4 right-4 bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-4 rounded-xl shadow-lg z-50 flex items-center space-x-2';
+        alertDiv.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Gagal menambahkan produk ke keranjang</span>
+          <button 
+            onclick="this.closest('.fixed').remove()" 
+            class="text-white hover:text-gray-200 transition-colors ml-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+          if (alertDiv.parentNode) {
+            alertDiv.remove();
+          }
+        }, 4000);
+      }
+    } catch (error) {
+      // Custom alert network error
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'fixed top-4 right-4 bg-gradient-to-r from-gray-600 to-gray-800 text-white px-6 py-4 rounded-xl shadow-lg z-50 flex items-center space-x-2';
+      alertDiv.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Terjadi kesalahan jaringan</span>
+        <button 
+          onclick="this.closest('.fixed').remove()" 
+          class="text-white hover:text-gray-200 transition-colors ml-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      `;
+      document.body.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        if (alertDiv.parentNode) {
+          alertDiv.remove();
+        }
+      }, 4000);
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+  
   useEffect(() => {
     fetchProduct();
   }, []);

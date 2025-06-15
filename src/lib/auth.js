@@ -23,9 +23,20 @@ export const authOptions = {
         const captchaToken = credentials.captcha;
         const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
+        // ✅ FIXED: POST to reCAPTCHA API using application/x-www-form-urlencoded
         try {
+          const params = new URLSearchParams();
+          params.append("secret", secretKey);
+          params.append("response", captchaToken);
+
           const { data } = await axios.post(
-            `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaToken}`
+            "https://www.google.com/recaptcha/api/siteverify",
+            params,
+            {
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }
           );
 
           if (!data.success) {
@@ -37,6 +48,7 @@ export const authOptions = {
           throw new Error("Failed to verify reCAPTCHA");
         }
 
+        // 🔐 Verify user credentials from database
         const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [credentials.email]);
         const user = rows[0];
         if (!user || !user.password) return null;
