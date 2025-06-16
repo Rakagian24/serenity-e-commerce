@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import AdminSidebar from "@/app/components/AdminSidebar";
 
 export default function AdminProfilePage() {
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
 
@@ -11,6 +13,10 @@ export default function AdminProfilePage() {
     const res = await fetch("/api/admin/profile");
     const data = await res.json();
     setForm({ name: data.name, email: data.email, password: "" });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
@@ -91,10 +97,10 @@ export default function AdminProfilePage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Password Baru (opsional)</label>
                   <input
-                    type="password"
-                    placeholder="Kosongkan jika tidak ingin mengubah password"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    type={showPassword ? "text" : "password"}
+                      placeholder="Kosongkan jika tidak ingin mengubah password"
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
                     className="w-full border border-blue-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   />
                 </div>
