@@ -466,7 +466,7 @@ The project includes a `backup.sql` file with sample data that you can import in
 
 **Admin Login Credentials:**
 - Email: `admin@serenity.com`
-- Password: `serenity_admin`
+- Password: `rakagian24`
 
 **Customer Access:**
 - Register a new account through the registration page
