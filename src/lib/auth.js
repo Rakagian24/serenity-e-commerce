@@ -23,8 +23,18 @@ export const authOptions = {
         const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
         try {
+          const params = new URLSearchParams();
+          params.append("secret", secretKey);
+          params.append("response", captchaToken);
+
           const { data } = await axios.post(
-            `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaToken}`
+            "https://www.google.com/recaptcha/api/siteverify",
+            params,
+            {
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }
           );
 
           if (!data.success) {
