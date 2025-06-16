@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { useState } from "react";
 
 export default function AdminSidebar() {
+  const { data: session } = useSession();
   const path = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -18,25 +20,6 @@ export default function AdminSidebar() {
     { href: "/admin/messages", label: "Pesan Chat", icon: "💬" },
     { href: "/admin/profile", label: "Profil Admin", icon: "👤" },
   ];
-
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      // Add your logout logic here
-      // For example: await signOut() or API call to logout endpoint
-      
-      // Clear any stored tokens or session data
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_session');
-      
-      // Redirect to login page
-      router.push('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
 
   return (
     <aside className="w-72 bg-gradient-to-b from-emerald-50 via-white to-teal-50 h-screen fixed left-0 top-0 shadow-xl border-r border-emerald-100 overflow-y-auto">
@@ -91,7 +74,7 @@ export default function AdminSidebar() {
       {/* Logout Button */}
       <div className="p-4 border-t border-emerald-100">
         <button
-          onClick={handleLogout}
+          onClick={() => signOut({ callbackUrl: "/" })}
           disabled={isLoggingOut}
           className={`w-full group flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
             isLoggingOut
