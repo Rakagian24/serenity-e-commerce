@@ -11,7 +11,6 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.0-010101?style=flat-square&logo=socket.io)](https://socket.io/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 </div>
 
@@ -799,8 +798,6 @@ netstat -an | grep 3001
 ---
 
 <div align="center">
-
-**Made with ❤️ for Indonesian UMKM**
 
 [⭐ Star this repo](https://github.com/Rakagian24/serenity-e-commerce) • [💬 Join discussion](https://github.com/Rakagian24/serenity-e-commerce/discussions)
 

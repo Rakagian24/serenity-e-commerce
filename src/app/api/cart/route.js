@@ -16,7 +16,7 @@ if (!session) return new Response("Unauthorized", { status: 401 });
 }
 
 export async function POST(req) {
- const session = await getServerSession(req, authOptions);
+ const session = await getServerSession(authOptions);
 if (!session) return new Response("Unauthorized", { status: 401 });
 
   const { product_id, quantity } = await req.json();
