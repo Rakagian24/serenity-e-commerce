@@ -772,6 +772,60 @@ netstat -an | grep 3001
 - Check Midtrans dashboard for transaction logs
 - Verify webhook URL is properly configured
 
+**Payment Status Not Updating (Manual Fix)**
+
+If payment is successful but order status remains `pending` instead of `paid`:
+
+1. **Create signature generator file `get-signature.js` in root folder:**
+```javascript
+require('dotenv').config();
+const crypto = require("crypto");
+const order_id = "ORDER-26-1750014743885"; // replace with midtrans_order_id from orders table
+const status_code = "200";
+const gross_amount = "249000.00"; // replace with total from orders table
+const serverKey = process.env.MIDTRANS_SERVER_KEY;
+console.log("Server Key:", serverKey);
+console.log("Is undefined?", serverKey === undefined);
+console.log("Env Key (from process.env):", process.env.MIDTRANS_SERVER_KEY);
+const signature = crypto
+  .createHash("sha512")
+  .update(order_id + status_code + gross_amount + serverKey)
+  .digest("hex");
+console.log("Signature Key:", signature);
+```
+
+2. **Run the script to get signature:**
+```bash
+node get-signature.js
+```
+
+3. **Use Postman to manually trigger webhook:**
+```
+Method: POST
+URL: https://serenity.vercel.app/api/midtrans/callback
+Headers: Content-Type: application/json
+Body (Raw JSON):
+{
+  "order_id": "ORDER-TEST-123", // replace with midtrans_order_id from orders table
+  "status_code": "200",
+  "gross_amount": "150000.00", // replace with total from orders table
+  "signature_key": "GENERATED_SIGNATURE_FROM_SCRIPT", // use signature from step 2
+  "transaction_status": "settlement",
+  "fraud_status": "accept",
+  "payment_type": "gopay"
+}
+```
+
+Expected response:
+```json
+{
+  "success": true,
+  "status": "paid"
+}
+```
+
+This will update order status to `paid` and delivery_status to `processing`.
+
 **OAuth Authentication Issues**
 - Ensure NEXTAUTH_URL matches your Ngrok URL
 - Check Google OAuth redirect URIs include your Ngrok URL
