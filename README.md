@@ -51,6 +51,7 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
 - Docker & Docker Compose
 - [Midtrans Account](https://midtrans.com) (Sandbox/Production)
 - Gmail App Password for email notifications
+- [Ngrok](https://ngrok.com/) for local testing with external webhooks
 
 **Installation with Docker**
 
@@ -70,11 +71,11 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
    # Database (Docker MySQL)
    DATABASE_URL="mysql://root:serenity_root@db:3306/serenity"
    
-   # NextAuth
+   # NextAuth (Use Ngrok URL for local testing)
    NEXTAUTH_SECRET=your_secret_key
-   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_URL=https://your-ngrok-url.ngrok.io  # Replace with your Ngrok URL
    
-   # Google OAuth
+   # Google OAuth (Configure in Google Console)
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    
@@ -82,13 +83,28 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
    EMAIL_USER=youremail@gmail.com
    EMAIL_PASS=your_app_password
    
-   # Midtrans Payment
+   # Midtrans Payment (Use Ngrok URL for webhook)
    MIDTRANS_SERVER_KEY=your_server_key
    NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=your_client_key
    MIDTRANS_ENVIRONMENT=sandbox # or production
+   
+   # Ngrok URL for webhooks (update after starting Ngrok)
+   NEXT_PUBLIC_BASE_URL=https://your-ngrok-url.ngrok.io
    ```
 
-3. **Run with Docker Compose**
+3. **Setup Ngrok for local testing**
+   ```bash
+   # Install Ngrok (if not already installed)
+   # Download from https://ngrok.com/download
+   
+   # Start Ngrok tunnel to port 3000
+   ngrok http 3000
+   
+   # Copy the HTTPS URL (e.g., https://abc123.ngrok.io)
+   # Update your .env.local with this URL
+   ```
+
+4. **Run with Docker Compose**
    ```bash
    # Build and start all services
    docker-compose up --build
@@ -97,7 +113,7 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
    docker-compose up -d --build
    ```
 
-4. **Import sample data**
+5. **Import sample data**
    ```bash
    # Wait for MySQL to be ready, then import data
    docker-compose exec db mysql -u root -pserenity_root serenity < database/backup.sql
@@ -107,8 +123,9 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
    docker-compose exec db mysql -u root -pserenity_root serenity < /backup.sql
    ```
 
-5. **Access the application**
-   - **Application**: [http://localhost:3000](http://localhost:3000)
+6. **Access the application**
+   - **Local**: [http://localhost:3000](http://localhost:3000)
+   - **Ngrok**: Your Ngrok HTTPS URL
    - **MySQL**: `localhost:3306` (from host machine)
 
 **Docker Management Commands**
@@ -143,6 +160,7 @@ docker-compose exec db mysql -u root -pserenity_root serenity
 - MySQL Database
 - [Midtrans Account](https://midtrans.com) (Sandbox/Production)
 - Gmail App Password for email notifications
+- [Ngrok](https://ngrok.com/) for local testing with external webhooks
 
 **Installation Steps**
 
@@ -167,11 +185,11 @@ docker-compose exec db mysql -u root -pserenity_root serenity
    # Database
    DATABASE_URL="mysql://username:password@localhost:3306/serenity"
    
-   # NextAuth
+   # NextAuth (Use Ngrok URL for local testing)
    NEXTAUTH_SECRET=your_secret_key
-   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_URL=https://your-ngrok-url.ngrok.io  # Replace with your Ngrok URL
    
-   # Google OAuth
+   # Google OAuth (Configure in Google Console)
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    
@@ -179,10 +197,13 @@ docker-compose exec db mysql -u root -pserenity_root serenity
    EMAIL_USER=youremail@gmail.com
    EMAIL_PASS=your_app_password
    
-   # Midtrans Payment
+   # Midtrans Payment (Use Ngrok URL for webhook)
    MIDTRANS_SERVER_KEY=your_server_key
    NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=your_client_key
    MIDTRANS_ENVIRONMENT=sandbox # or production
+   
+   # Ngrok URL for webhooks
+   NEXT_PUBLIC_BASE_URL=https://your-ngrok-url.ngrok.io
    ```
 
 4. **Setup database**
@@ -194,7 +215,19 @@ docker-compose exec db mysql -u root -pserenity_root serenity
    mysql -u root -p serenity < database/backup.sql
    ```
 
-5. **Run the application**
+5. **Setup Ngrok for local testing**
+   ```bash
+   # Install Ngrok (if not already installed)
+   # Download from https://ngrok.com/download
+   
+   # Start Ngrok tunnel to port 3000
+   ngrok http 3000
+   
+   # Copy the HTTPS URL (e.g., https://abc123.ngrok.io)
+   # Update your .env.local with this URL
+   ```
+
+6. **Run the application**
    ```bash
    # Development mode
    npm run dev
@@ -203,74 +236,183 @@ docker-compose exec db mysql -u root -pserenity_root serenity
    npm run socket
    ```
 
-Visit [http://localhost:3000](http://localhost:3000) 🎉
+Visit your Ngrok HTTPS URL to test the application with external services 🎉
 
-### Prerequisites
-- Node.js 18+
-- MySQL Database
-- [Midtrans Account](https://midtrans.com) (Sandbox/Production)
-- Gmail App Password for email notifications
+## 🔗 External Service Configuration
 
-### Installation
+### 🌐 Ngrok Setup for Local Development
 
-1. **Clone the repository**
+Ngrok is essential for testing webhooks and OAuth callbacks locally. Here's how to set it up:
+
+1. **Install Ngrok**
    ```bash
-   git clone https://github.com/username/serenity.git
-   cd serenity
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Setup environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
+   # Download from https://ngrok.com/download
+   # Or install via package manager
    
-   Configure your `.env.local`:
+   # macOS
+   brew install ngrok/ngrok/ngrok
+   
+   # Windows (using Chocolatey)
+   choco install ngrok
+   
+   # Ubuntu/Debian
+   snap install ngrok
+   ```
+
+2. **Create Ngrok account and get auth token**
+   - Sign up at [ngrok.com](https://ngrok.com)
+   - Get your auth token from the dashboard
+   - Configure it locally:
+   ```bash
+   ngrok config add-authtoken YOUR_AUTH_TOKEN
+   ```
+
+3. **Start Ngrok tunnel**
+   ```bash
+   # Basic tunnel
+   ngrok http 3000
+   
+   # With custom subdomain (paid plan)
+   ngrok http 3000 --subdomain=your-app-name
+   
+   # With custom domain (paid plan)
+   ngrok http 3000 --hostname=your-custom-domain.com
+   ```
+
+4. **Important Ngrok URLs**
+   - **HTTPS URL**: Use this for all external service configurations
+   - **HTTP URL**: Only for local testing (not recommended for production webhooks)
+   - **Web Interface**: http://127.0.0.1:4040 (to monitor requests)
+
+### 💳 Midtrans Configuration
+
+1. **Create Midtrans Account**
+   - Sign up at [Midtrans](https://midtrans.com)
+   - Activate your account and verify your business
+
+2. **Configure Midtrans Dashboard**
+   ```
+   Sandbox Environment:
+   - Server Key: Your sandbox server key
+   - Client Key: Your sandbox client key
+   - Notification URL: https://your-ngrok-url.ngrok.io/api/midtrans/callback
+   - Redirect URL: https://your-ngrok-url.ngrok.io/orders/[order-id]
+   - Finish URL: https://your-ngrok-url.ngrok.io/orders/[order-id]
+   - Error URL: https://your-ngrok-url.ngrok.io/checkout?error=payment_failed
+   ```
+
+3. **Update Environment Variables**
    ```env
-   # Database
-   DATABASE_URL="mysql://username:password@localhost:3306/serenity"
+   # Midtrans Configuration
+   MIDTRANS_SERVER_KEY=SB-Mid-server-your_server_key_here
+   NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-your_client_key_here
+   MIDTRANS_ENVIRONMENT=sandbox
    
-   # NextAuth
-   NEXTAUTH_SECRET=your_secret_key
-   NEXTAUTH_URL=http://localhost:3000
+   # Webhook URLs
+   NEXT_PUBLIC_BASE_URL=https://your-ngrok-url.ngrok.io
+   ```
+
+### 🔐 Google OAuth Configuration
+
+1. **Google Cloud Console Setup**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing one
+   - Enable Google+ API
+
+2. **Create OAuth 2.0 Credentials**
+   ```
+   Application Type: Web Application
+   Authorized JavaScript Origins:
+   - https://your-ngrok-url.ngrok.io
+   - http://localhost:3000 (for local development)
    
+   Authorized Redirect URIs:
+   - https://your-ngrok-url.ngrok.io/api/auth/callback/google
+   - http://localhost:3000/api/auth/callback/google
+   ```
+
+3. **Update Environment Variables**
+   ```env
    # Google OAuth
-   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    
+   # NextAuth URL (must match your Ngrok URL)
+   NEXTAUTH_URL=https://your-ngrok-url.ngrok.io
+   ```
+
+### 🤖 reCAPTCHA Configuration (Optional)
+
+If you're using reCAPTCHA for form protection:
+
+1. **Google reCAPTCHA Setup**
+   - Go to [Google reCAPTCHA](https://www.google.com/recaptcha/admin)
+   - Create a new site
+
+2. **Configure Domains**
+   ```
+   Domains:
+   - your-ngrok-url.ngrok.io (without https://)
+   - localhost (for local development)
+   ```
+
+3. **Update Environment Variables**
+   ```env
+   # reCAPTCHA
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
+   RECAPTCHA_SECRET_KEY=your_secret_key
+   ```
+
+### 📧 Email Configuration
+
+1. **Gmail App Password Setup**
+   - Enable 2-factor authentication on your Gmail account
+   - Go to Google Account Settings → Security → 2-Step Verification
+   - Generate an App Password for "Mail"
+
+2. **Update Environment Variables**
+   ```env
    # Email Configuration
-   EMAIL_USER=youremail@gmail.com
-   EMAIL_PASS=your_app_password
-   
-   # Midtrans Payment
-   MIDTRANS_SERVER_KEY=your_server_key
-   NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=your_client_key
-   MIDTRANS_ENVIRONMENT=sandbox # or production
+   EMAIL_USER=your-email@gmail.com
+   EMAIL_PASS=your_16_character_app_password
+   EMAIL_FROM=your-email@gmail.com
    ```
 
-4. **Setup database**
-   ```bash
-   # Create your MySQL database
-   mysql -u root -p -e "CREATE DATABASE serenity;"
-   
-   # Import the database schema and sample data
-   mysql -u root -p serenity < database/backup.sql
-   ```
+### 🔄 Development Workflow with Ngrok
 
-5. **Run the application**
+1. **Start your development server**
    ```bash
-   # Development mode
    npm run dev
-   
-   # For Socket.IO server (if separate)
-   npm run socket
    ```
 
-Visit [http://localhost:3000](http://localhost:3000) 🎉
+2. **Start Ngrok in a separate terminal**
+   ```bash
+   ngrok http 3000
+   ```
+
+3. **Update your .env.local with the Ngrok URL**
+   ```env
+   NEXTAUTH_URL=https://abc123.ngrok.io
+   NEXT_PUBLIC_BASE_URL=https://abc123.ngrok.io
+   ```
+
+4. **Update external service configurations**
+   - Midtrans: Update notification URL
+   - Google OAuth: Update redirect URIs
+   - Any other webhook URLs
+
+5. **Test your application**
+   - Use the Ngrok HTTPS URL to test your application
+   - Check the Ngrok web interface (http://127.0.0.1:4040) to monitor requests
+   - Test payment flows, OAuth login, and webhook callbacks
+
+### 🚨 Security Notes for Ngrok
+
+- **Never use Ngrok URLs in production** - they're only for development and testing
+- **Ngrok URLs change** every time you restart Ngrok (unless you have a paid plan)
+- **Update configurations** when your Ngrok URL changes
+- **Use HTTPS URLs** for all external service configurations
+- **Monitor Ngrok requests** using the web interface to debug issues
 
 ## 🗂️ Sample Data
 
@@ -282,7 +424,7 @@ The project includes a `backup.sql` file with sample data that you can import in
 
 **Admin Login Credentials:**
 - Email: `admin@serenity.com`
-- Password: `rakagian24`
+- Password: `serenity_admin`
 
 **Customer Access:**
 - Register a new account through the registration page
@@ -468,8 +610,9 @@ CREATE TABLE verification_tokens (
 ### Payment Integration (Midtrans)
 1. Create account at [Midtrans](https://midtrans.com)
 2. Get your Server Key and Client Key from dashboard
-3. Configure webhook URL: `your-domain.com/api/midtrans/callback`
+3. Configure webhook URL: `https://your-ngrok-url.ngrok.io/api/midtrans/callback`
 4. Set environment to `sandbox` for testing or `production` for live
+5. **Important**: Always use HTTPS URLs (Ngrok) for webhook configurations
 
 ### Email Configuration
 1. Enable 2-factor authentication on Gmail
@@ -493,8 +636,18 @@ The project includes real-time chat functionality using Socket.IO:
    ```
 
 2. **Configure environment variables in Vercel dashboard**
+   ```env
+   # Use your production domain instead of Ngrok
+   NEXTAUTH_URL=https://your-vercel-app.vercel.app
+   NEXT_PUBLIC_BASE_URL=https://your-vercel-app.vercel.app
+   ```
 
 3. **Setup external database** (PlanetScale, Railway, or similar)
+
+4. **Update external service configurations**
+   - Midtrans: Update webhook URL to production domain
+   - Google OAuth: Add production domain to authorized origins
+   - Update any other webhook URLs
 
 > **Note:** For Socket.IO functionality, you'll need to deploy the WebSocket server separately (Railway, Render, etc.) as Vercel doesn't support persistent WebSocket connections.
 
@@ -573,13 +726,26 @@ netstat -an | grep 3001
 **Midtrans Payment Issues**
 - Verify Server Key and Client Key
 - Check environment setting (sandbox/production)
-- Ensure callback URL is accessible
+- Ensure callback URL is accessible and uses HTTPS (Ngrok URL)
 - Check Midtrans dashboard for transaction logs
+- Verify webhook URL is properly configured
+
+**OAuth Authentication Issues**
+- Ensure NEXTAUTH_URL matches your Ngrok URL
+- Check Google OAuth redirect URIs include your Ngrok URL
+- Verify client ID and secret are correct
+- Make sure you're using HTTPS (Ngrok) for OAuth callbacks
 
 **Email Verification Not Working**
 - Verify Gmail App Password is correct
 - Check email configuration in environment variables
 - Ensure less secure app access is enabled (if not using App Password)
+
+**Ngrok Issues**
+- URL changes every restart (use paid plan for persistent URLs)
+- Update all external service configurations when URL changes
+- Use HTTPS URLs for all webhook configurations
+- Check Ngrok web interface (http://127.0.0.1:4040) for request logs
 
 </details>
 
@@ -618,9 +784,8 @@ netstat -an | grep 3001
 - `GET /api/messages/history` - Get message history
 - `GET /api/messages/unread` - Get unread message count
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Webhooks
+- `POST /api/midtrans/callback` - Midtrans payment notification webhook
 
 ## 🙏 Acknowledgments
 
@@ -629,6 +794,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Socket.IO](https://socket.io/) - Real-time communication
 - [Midtrans](https://midtrans.com/) - Payment gateway
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Ngrok](https://ngrok.com/) - Secure tunneling for local development
 
 ---
 
@@ -636,6 +802,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for Indonesian UMKM**
 
-[⭐ Star this repo](https://github.com/username/serenity) • [🐦 Follow updates](https://twitter.com/yourhandle) • [💬 Join discussion](https://github.com/username/serenity/discussions)
+[⭐ Star this repo](https://github.com/Rakagian24/serenity-e-commerce) • [💬 Join discussion](https://github.com/Rakagian24/serenity-e-commerce/discussions)
 
 </div>
