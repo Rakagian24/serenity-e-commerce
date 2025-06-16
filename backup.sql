@@ -227,7 +227,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (3,'Ruri Nurmarisa','rakagian234@gmail.com','$2b$10$X5X78wXinj./gyVhK6qmYe4c2n9ULb.Vu.YTBelqKPbC9TYAafOEC',NULL,'customer',0,'2025-06-13 10:18:09','Ruri Nurmarisa','08321638716','Majalaya'),(4,'Rayna Kayla Rayya','rakagian12345@gmail.com','$2b$10$9Ky/olgpd3JNuzH2QztNb.n6WxNZH/VMqp23gyrNzTF8kQEF192J.',NULL,'customer',0,'2025-06-13 12:53:49','Rayna Kayla Rayya','089508410132','Grand PKJ'),(5,'Raka Gian Aditya Asbath','admin@serenity.com','$2b$10$Lx88WTgK1Pce8myMg247se5Sjlqh1F4nHCC5Lpj6J2QWlfB8e21RK',NULL,'admin',0,'2025-06-14 04:53:37',NULL,NULL,NULL),(6,'Raka Gian','rakagian1234@gmail.com',NULL,'https://lh3.googleusercontent.com/a/ACg8ocJFzy1gb3MhJgLhb5N55HL3RmLSS8sM1FGrUiLnxS7yK9pX=s96-c','customer',0,'2025-06-14 07:48:01',NULL,NULL,NULL),(7,'Rasya Muhammad Atthaya','rakagian107@gmail.com','$2b$10$g/DskoPKbGXBFmGbytMEIeKEwDJrv5fm2baLxW6hGkoeBNUh1SYIC',NULL,'customer',0,'2025-06-14 11:56:52','Rasya Muhammad Atthaya','089508410132','Rancamanyar');
+INSERT INTO `users` VALUES (3,'Ruri Nurmarisa','rakagian234@gmail.com','$2b$10$X5X78wXinj./gyVhK6qmYe4c2n9ULb.Vu.YTBelqKPbC9TYAafOEC',NULL,'customer',0,'2025-06-13 10:18:09','Ruri Nurmarisa','08321638716','Majalaya'),(4,'Rayna Kayla Rayya','rakagian12345@gmail.com','$2b$10$9Ky/olgpd3JNuzH2QztNb.n6WxNZH/VMqp23gyrNzTF8kQEF192J.',NULL,'customer',0,'2025-06-13 12:53:49','Rayna Kayla Rayya','089508410132','Grand PKJ'),(5,'Raka Gian Aditya Asbath','admin@serenity.com','$2b$10$.2fLdzbYIe77qpNQfMOzZ.76oYF9blCKT5FU3jSflk9I3Xa9m3PeO',NULL,'admin',0,'2025-06-14 04:53:37',NULL,NULL,NULL),(6,'Raka Gian','rakagian1234@gmail.com',NULL,'https://lh3.googleusercontent.com/a/ACg8ocJFzy1gb3MhJgLhb5N55HL3RmLSS8sM1FGrUiLnxS7yK9pX=s96-c','customer',0,'2025-06-14 07:48:01',NULL,NULL,NULL),(7,'Rasya Muhammad Atthaya','rakagian107@gmail.com','$2b$10$g/DskoPKbGXBFmGbytMEIeKEwDJrv5fm2baLxW6hGkoeBNUh1SYIC',NULL,'customer',0,'2025-06-14 11:56:52','Rasya Muhammad Atthaya','089508410132','Rancamanyar');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -266,4 +266,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-15 22:46:24
+-- Dump completed on 2025-06-16  1:46:07
