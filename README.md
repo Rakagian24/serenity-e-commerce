@@ -16,6 +16,49 @@ Built with Next.js 14 (App Router) • Tailwind CSS • MySQL • Socket.IO
 
 ---
 
+## 📚 Table of Contents
+
+- [✨ Features](#-features)
+  - [🛒 Customer Experience](#-customer-experience)
+  - [👨‍💼 Admin Panel](#-admin-panel)
+  - [🔒 Security & Authentication](#-security--authentication)
+- [🚀 Quick Start](#-quick-start)
+  - [Option 1: Docker (Recommended)](#option-1-docker-recommended)
+  - [Option 2: Manual Installation](#option-2-manual-installation)
+- [🔗 External Service Configuration](#-external-service-configuration)
+  - [🌐 Ngrok Setup for Local Development](#-ngrok-setup-for-local-development)
+  - [💳 Midtrans Configuration](#-midtrans-configuration)
+  - [🔐 Google OAuth Configuration](#-google-oauth-configuration)
+  - [🤖 reCAPTCHA Configuration (Optional)](#-recaptcha-configuration-optional)
+  - [📧 Email Configuration](#-email-configuration)
+  - [🔄 Development Workflow with Ngrok](#-development-workflow-with-ngrok)
+  - [🚨 Security Notes for Ngrok](#-security-notes-for-ngrok)
+- [🗂️ Sample Data](#️-sample-data)
+- [🌐 Live Demo](#-live-demo)
+- [📁 Project Structure](#-project-structure)
+- [🗄️ Database Schema](#️-database-schema)
+- [🔧 Configuration](#-configuration)
+- [🚢 Deployment](#-deployment)
+  - [Vercel (Recommended for Frontend)](#vercel-recommended-for-frontend)
+  - [Traditional Hosting](#traditional-hosting)
+- [🛡️ Security Features](#️-security-features)
+- [🎯 Key Features Explained](#-key-features-explained)
+  - [Live Chat System](#live-chat-system)
+  - [Order Management](#order-management)
+  - [Product Management](#product-management)
+- [🤝 Contributing](#-contributing)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [📋 API Documentation](#-api-documentation)
+  - [Authentication](#authentication)
+  - [Products](#products)
+  - [Orders](#orders)
+  - [Cart](#cart)
+  - [Messages](#messages)
+  - [Webhooks](#webhooks)
+- [🙏 Acknowledgments](#-acknowledgments)
+
+---
+
 ## ✨ Features
 
 ### 🛒 **Customer Experience**
